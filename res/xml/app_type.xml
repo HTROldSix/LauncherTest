@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<allApp>
+
+    <type name="system">
+        <item calssName="com.android.calendar/com.android.calendar.AllInOneActivity" />
+        <item calssName="com.android.contacts/com.android.contacts.activities.PeopleActivity" />
+        <item calssName="com.android.deskclock/com.android.deskclock.DeskClock" />
+        <item calssName="com.android.dialer/com.android.dialer.DialtactsActivity" />
+        <item calssName="com.android.gallery3d/com.android.gallery3d.app.GalleryActivity" />
+        <item calssName="com.android.mms/com.android.mms.ui.BootActivity" />
+        <item calssName="com.android.settings/com.android.settings.Settings" />
+        <item calssName="com.android.soundrecorder/com.android.soundrecorder.SoundRecorder" />
+        <item calssName="com.android.vending/com.android.vending.AssetBrowserActivity" />
+        <item calssName="com.google.android.apps.photos/com.google.android.apps.photos.home.HomeActivity" />
+        <item calssName="com.mediatek.camera/com.android.camera.CameraLauncher" />
+        <item calssName="com.android.calculator2/com.android.calculator2.Calculator" />
+        <item calssName="com.android.documentsui/com.android.documentsui.LauncherActivity" />
+        <item calssName="com.android.fmradio/com.android.fmradio.FmMainActivity" />
+        <item calssName="com.android.stk/com.android.stk.StkMain" />
+        <item calssName="com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.VoiceSearchActivity" />
+        <item calssName="com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.SearchActivity" />
+        <item calssName="com.mediatek.datatransfer/com.mediatek.datatransfer.BootActivity" />
+        <item calssName="com.mediatek.filemanager/com.mediatek.filemanager.FileManagerOperationActivity" />
+        <item calssName="com.android.cts.verifier/com.android.cts.verifier.CtsVerifierActivity" />
+    </type>
+
+    <type name="office">
+        <item calssName="com.android.email/com.android.email.activity.Welcome" />
+        <item calssName="com.google.android.apps.docs/com.google.android.apps.docs.app.NewMainProxyActivity" />
+        <item calssName="com.google.android.gm/com.google.android.gm.ConversationListActivityGmail" />
+        <item calssName="com.notebook/com.mediatek.notebook.NotesList" />
+    </type>
+
+    <type name="communication">
+        <item calssName="com.google.android.talk/com.google.android.talk.SigningInActivity" />
+        <item calssName="com.tencent.mm/com.tencent.mm.ui.LauncherUI" />
+        <item calssName="com.tencent.mobileqq/com.tencent.mobileqq.activity.SplashActivity" />
+        <item calssName="com.whatsapp/com.whatsapp.Main" />
+    </type>
+
+    <type name="media">
+        <item calssName="com.android.music/com.android.music.MusicBrowserActivity" />
+        <item calssName="com.google.android.music/com.android.music.activitymanagement.TopLevelActivity" />
+        <item calssName="com.google.android.videos/com.google.android.youtube.videos.EntryPoint" />
+        <item calssName="com.google.android.youtube/com.google.android.youtube.app.honeycomb.Shell$HomeActivity" />
+    </type>
+
+    <type name="life">
+        <item calssName="com.android.browser/com.android.browser.BrowserActivity" />
+        <item calssName="com.android.chrome/com.google.android.apps.chrome.Main" />
+        <item calssName="com.google.android.apps.maps/com.google.android.maps.MapsActivity" />
+        <item calssName="com.sinovatech.unicom.ui/com.sinovatech.unicom.ui.WelcomeClient" />
+    </type>
+
+    <type name="financial">
+        <item calssName="com.eg.android.AlipayGphone/com.eg.android.AlipayGphone.AlipayLogin" />
+    </type>
+
+</allApp>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/colors.xml
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+-->
+<resources>
+    <!-- The color tints to apply to the text and drag view when hovering
+         over the delete target or the info target -->
+    <color name="delete_target_hover_tint">#FFC1C1C1</color>
+    <color name="uninstall_target_hover_tint">#FFF0592B</color>
+    <color name="info_target_hover_tint">#FF009688</color>
+    <color name="cling_scrim_background">#80000000</color>
+
+    <color name="focused_background">#80c6c5c5</color>
+
+    <color name="workspace_icon_text_color">#FFF</color>
+
+    <color name="workspace_edge_effect_color">#FFFFFFFF</color>
+    <color name="folder_edge_effect_color">#FF757575</color>
+
+    <color name="quantum_panel_text_color">#FF666666</color>
+    <color name="quantum_panel_transparent_bg_text_color">#FFFFFF</color>
+    <color name="quantum_panel_bg_color">#FFF5F5F5</color>
+    <color name="quantum_panel_bg_color_dark">#FF374248</color>
+
+    <color name="outline_color">#FFFFFFFF</color>
+
+    <!-- Containers -->
+    <color name="container_fastscroll_thumb_inactive_color">#009688</color>
+    <color name="container_fastscroll_thumb_active_color">#009688</color>
+
+    <!-- All Apps -->
+    <color name="all_apps_grid_section_text_color">#009688</color>
+    <color name="all_apps_search_market_button_focused_bg_color">#DDDDDD</color>
+
+    <!-- Widgets view -->
+    <color name="widgets_view_section_text_color">#FFFFFF</color>
+    <color name="widgets_view_item_text_color">#C4C4C4</color>
+    <color name="widgets_cell_color">#263238</color>
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="indicator_theme_purple">#673ab7</color>
+    <color name="indicator_theme_purple_selector">#7e57c2</color>
+    <color name="white">#ffffff</color>
+    <!--add by lihuachun start -->
+    <color name="lucensy">#00000001</color>
+    <color name="translucency">#e0000000</color>
+    <color name="orange">#ffa500</color>
+    <color name="blue">#836FFF</color>
+    <color name="light_orange">#fcb75c</color>
+    <color name="gray">#DBDBDB</color>
+    <color name="trans">#50000000</color>
+    <color name="red">#fe0202</color>
+    <color name="background">#e5e5e5</color>
+    <color name="transparent_background">#50000000</color>
+    <color name="text_gray1">#4F4F4F</color>
+    <color name="green">#00FF00</color>
+    <color name="grey21">#363636</color>
+    <color name="gold">#b89766</color>
+    <!--add by lihuachun end -->
+    <color name="swipe_header_title_color">#383838</color>
+    <color name="swipe_bottom_gray">#cccccc</color>
+    <color name="anglelayout_background">#99202020</color>
+    <color name="angleview_arc_background">#cf1ce4d0</color>
+    <color name="indicator_color">#FFFFFF</color>
+
+    <color name="ksw_md_ripple_normal">#1E000000</color>
+    <color name="ksw_md_ripple_checked">#33019285</color>
+    <color name="ksw_md_solid_shadow">#33000000</color>
+    <color name="ksw_md_solid_normal">#ECECEC</color>
+    <color name="ksw_md_solid_checked">#019285</color>
+    <color name="ksw_md_solid_disable">#FFFFFF</color>
+    <color name="ksw_md_solid_checked_disable">#aaaaaa</color>
+
+    <color name="preference_title_enable_color">#019285</color>
+    <color name="preference_title_unenable_color">#63c3ba</color>
+    <color name="preference_summary_enable_color">#787878</color>
+    <color name="preference_summary_unenable_color">#b4b4b4</color>
+    <color name="preference_divide">#d9d9d9</color>
+    <color name="seekbar_progress_color">#8e8e8e</color>
+    <color name="check_item_enable">#e5e5e5</color>
+    <color name="catch_view_color_gary">#8e8e8e</color>
+
+    <color name="title_bar_gradient">#016960</color>
+    <color name="GreenColor">#000000</color>
+    <color name="warning_color">#DD2222</color>
+    <color name="transparent">#00000000</color>
+    <color name="transparent_30">#11000000</color>
+    <color name="text_white">#ffffff</color>
+    <color name="text_gray">#c8c8c8</color>
+    <color name="text_white_unclick">#9fffffff</color>
+    <color name="text_gray_unclick">#9fc8c8c8</color>
+
+    <!--t9 start-->
+    <color name="icon_text_color">#ffffffff</color>
+    <color name="white_smoke">#FFF5F5F5</color>
+    <color name="black">#FF000000</color>
+
+    <color name="key_text_color">#aa000000</color>
+    <color name="key_text_color1">#44000000</color>
+    <!--t9 end-->
+</resources>
