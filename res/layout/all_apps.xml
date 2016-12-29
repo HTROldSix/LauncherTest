@@ -53,5 +53,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:visibility="gone" />
+
     </FrameLayout>
 </com.android.launcher3.allapps.AllAppsContainerView>

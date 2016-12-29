@@ -121,7 +121,6 @@ public class AppInfo extends ItemInfo {
      */
     public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandleCompat user,
                    IconCache iconCache, String s) {
-        Log.i("Launcher.AppClassify", "AppInfo " + s);
         this.componentName = info.getComponentName();
         this.container = ItemInfo.NO_ID;
 
@@ -142,7 +141,6 @@ public class AppInfo extends ItemInfo {
 
     public void setAppType(Map<String, List<String>> m) {
         String s = componentName.getPackageName() + "/" + componentName.getClassName();
-        Log.i("Launcher.AppClassify", m.toString());
         if (m.get("system").contains(s)) {
             this.appType = 1;
         } else if (m.get("office").contains(s)) {

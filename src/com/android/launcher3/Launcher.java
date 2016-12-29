@@ -398,7 +398,7 @@ public class Launcher extends Activity
     private Canvas mFolderIconCanvas;
     private Rect mRectForFolderAnimation = new Rect();
 
-    private DeviceProfile mDeviceProfile;
+    public static DeviceProfile mDeviceProfile;
 
     // This is set to the view that launched the activity that navigated the user away from
     // launcher. Since there is no callback for when the activity has finished launching, enable

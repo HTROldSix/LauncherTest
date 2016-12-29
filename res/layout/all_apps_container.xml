@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +12,9 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<!-- Both android:focusable and android:focusableInTouchMode are needed for
+--><!-- Both android:focusable and android:focusableInTouchMode are needed for
      the view to get focus change events. -->
-<com.android.launcher3.allapps.AllAppsRecyclerViewContainerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.launcher3.allapps.AllAppsRecyclerViewContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="15dp"
@@ -27,12 +24,18 @@
     <!-- DO NOT CHANGE THE ID -->
     <com.android.launcher3.allapps.AllAppsRecyclerView
         android:id="@+id/apps_list_view"
-        android:theme="@style/Theme.Light.CustomOverscroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|top"
         android:clipToPadding="false"
+        android:descendantFocusability="afterDescendants"
         android:focusable="true"
-        android:descendantFocusability="afterDescendants" />
+        android:theme="@style/Theme.Light.CustomOverscroll" />
+
+    <com.android.launcher3.ViewPager
+        android:id="@+id/my_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </com.android.launcher3.allapps.AllAppsRecyclerViewContainerView>

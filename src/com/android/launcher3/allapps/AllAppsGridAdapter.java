@@ -47,10 +47,14 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.ShortcutInfo;
 import com.android.launcher3.Utilities;
+import com.android.launcher3.ViewPager;
 import com.android.launcher3.util.Thunk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 /**
@@ -130,6 +134,9 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
 
         @Override
         public int getSpanSize(int position) {
+            if (mApps.getAdapterItems().size() == 0) {
+                return -1;
+            }
             switch (mApps.getAdapterItems().get(position).viewType) {
                 case AllAppsGridAdapter.ICON_VIEW_TYPE:
                 case AllAppsGridAdapter.PREDICTION_ICON_VIEW_TYPE:
@@ -362,7 +369,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
 
     public AllAppsGridAdapter(Launcher launcher, AlphabeticalAppsList apps,
                               View.OnTouchListener touchListener, View.OnClickListener iconClickListener,
-                              View.OnLongClickListener iconLongClickListener) {
+                              View.OnLongClickListener iconLongClickListener, AllAppsContainerView v) {
         Resources res = launcher.getResources();
         mLauncher = launcher;
         mApps = apps;
@@ -399,6 +406,8 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         if (marketInfo != null) {
             mMarketAppName = marketInfo.loadLabel(pm).toString();
         }
+
+        view = v;
     }
 
     /**
@@ -455,30 +464,101 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         return mItemDecoration;
     }
 
+    //A: app classify mode by taoqi
     boolean isFolderMode = true;
+    AllAppsContainerView view;
+    Map<String, List<AppInfo>> allAppsTypeMap;
+    List<String> name;
+    ArrayList<AppInfo> infoArrayList;
+
+    private void initAllAppsClassify() {
+        if (allAppsTypeMap != null) {
+            return;
+        }
+        allAppsTypeMap = new TreeMap<>();
+        name = new ArrayList<>();
+        List<AppInfo> systemApps = new ArrayList<>();
+        List<AppInfo> officeApps = new ArrayList<>();
+        List<AppInfo> communicationApps = new ArrayList<>();
+        List<AppInfo> multiMediaApps = new ArrayList<>();
+        List<AppInfo> lifeApps = new ArrayList<>();
+        List<AppInfo> financialApps = new ArrayList<>();
+        List<AppInfo> otherApps = new ArrayList<>();
+        Resources resources = mLauncher.getResources();
+        AppInfo info;
+        infoArrayList = Launcher.mModel.mBgAllAppsList.data;
+        int size = infoArrayList.size();
+        for (int i = 1; i < size; i++) {
+            info = infoArrayList.get(i);
+            Log.i("Launcher.AppClassify", "appType " + info.appType);
+            switch (info.appType) {
+                case 1:
+                    systemApps.add(info);
+                    break;
+                case 2:
+                    officeApps.add(info);
+                    break;
+                case 3:
+                    communicationApps.add(info);
+                    break;
+                case 4:
+                    multiMediaApps.add(info);
+                    break;
+                case 5:
+                    lifeApps.add(info);
+                    break;
+                case 6:
+                    financialApps.add(info);
+                    break;
+                default:
+                    otherApps.add(info);
+                    break;
+            }
+        }
+        if (systemApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_system_app));
+            allAppsTypeMap.put(resources.getString(R.string.ft_system_app), systemApps);
+        }
+        if (officeApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_office));
+            allAppsTypeMap.put(resources.getString(R.string.ft_office), officeApps);
+        }
+        if (communicationApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_communication));
+            allAppsTypeMap.put(resources.getString(R.string.ft_communication), communicationApps);
+        }
+        if (multiMediaApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_multi_media));
+            allAppsTypeMap.put(resources.getString(R.string.ft_multi_media), multiMediaApps);
+        }
+        if (lifeApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_life));
+            allAppsTypeMap.put(resources.getString(R.string.ft_life), lifeApps);
+        }
+        if (financialApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_financial_management));
+            allAppsTypeMap.put(resources.getString(R.string.ft_financial_management), financialApps);
+        }
+        if (otherApps.size() > 0) {
+            name.add(resources.getString(R.string.ft_other));
+            allAppsTypeMap.put(resources.getString(R.string.ft_other), otherApps);
+        }
+        setViewPagerAdapter();
+    }
+
+    private void setViewPagerAdapter() {
+        view.setViewPagerAdapter(allAppsTypeMap, name);
+    }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         switch (viewType) {
             case SECTION_BREAK_VIEW_TYPE:
                 return new ViewHolder(new View(parent.getContext()));
             case ICON_VIEW_TYPE: {
                 if (isFolderMode) {
                     final FolderInfo folderInfo = new FolderInfo();
-                    folderInfo.title = "";
                     FolderIcon newFolder = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, parent, folderInfo, null, "");
-//                    newFolder.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Log.i("TAGG", "onClick");
-//                        }
-//                    });
-//                    newFolder.setOnLongClickListener(new View.OnLongClickListener() {
-//                        @Override
-//                        public boolean onLongClick(View v) {
-//                            return false;
-//                        }
-//                    });
                     return new ViewHolder(newFolder);
                 } else {
                     BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
@@ -529,46 +609,32 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Resources resources = mLauncher.getResources();
-        String name = "";
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        Log.i("Launcher.AppClassify", "onBindViewHolder " + position + " - " +holder.getItemViewType());
+        initAllAppsClassify();
+        holder.mContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.setViewPagerVisibility(0, position);
+            }
+        });
+        holder.mContent.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
         switch (holder.getItemViewType()) {
             case ICON_VIEW_TYPE: {
                 if (isFolderMode) {
-                    int size = mApps.getAdapterItems().size();
-                    for (int i = 1; i < size; i++) {
-                        AppInfo info = mApps.getAdapterItems().get(i).appInfo;
-                        Log.i("Launcher.AppClassify", "position " + position + " appType " + info.appType);
-                        if (info.appType == position) {
-                            FolderIcon fi = (FolderIcon) holder.mContent;
-                            TextView tv = (TextView) fi.findViewById(R.id.tv_folder_name);
-                            tv.setVisibility(View.VISIBLE);
-                            switch (position) {
-                                case 1:
-                                    name = resources.getString(R.string.ft_system_app);
-                                    break;
-                                case 2:
-                                    name = resources.getString(R.string.ft_office);
-                                    break;
-                                case 3:
-                                    name = resources.getString(R.string.ft_communication);
-                                    break;
-                                case 4:
-                                    name = resources.getString(R.string.ft_multi_media);
-                                    break;
-                                case 5:
-                                    name = resources.getString(R.string.ft_life);
-                                    break;
-                                case 6:
-                                    name = resources.getString(R.string.ft_financial_management);
-                                    break;
-                                default:
-                                    name = resources.getString(R.string.ft_other);
-                                    break;
-                            }
-                            tv.setText(name);
-                            fi.addItem(new ShortcutInfo(info));
-                        }
+                    FolderIcon fi = (FolderIcon) holder.mContent;
+                    TextView tv = (TextView) fi.findViewById(R.id.tv_folder_name);
+                    tv.setVisibility(View.VISIBLE);
+                    String appType = name.get(position-1);
+                    tv.setText(appType);
+                    List<AppInfo> list = allAppsTypeMap.get(appType);
+                    for (AppInfo info : list) {
+                        fi.addItem(new ShortcutInfo(info));
                     }
                 } else {
                     AppInfo info = mApps.getAdapterItems().get(position).appInfo;
@@ -606,8 +672,13 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
 
     @Override
     public int getItemCount() {
-        if (isFolderMode)
-            return 8;
+        initAllAppsClassify();
+        if (isFolderMode) {
+            if (allAppsTypeMap != null) {
+                return allAppsTypeMap.size()+1;
+            }
+            return 0;
+        }
         return mApps.getAdapterItems().size();
     }
 

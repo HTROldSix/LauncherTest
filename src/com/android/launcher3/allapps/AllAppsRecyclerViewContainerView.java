@@ -70,4 +70,5 @@ public class AllAppsRecyclerViewContainerView extends FrameLayout
             mTouchFeedbackView.animateShadow();
         }
     }
+
 }

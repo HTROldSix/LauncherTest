@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -28,12 +29,14 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.BaseContainerView;
 import com.android.launcher3.CellLayout;
@@ -45,8 +48,10 @@ import com.android.launcher3.Folder;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherTransitionable;
+import com.android.launcher3.MyViewPagerAdapter;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
+import com.android.launcher3.ViewPager;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.allapps.AlphabeticalAppsList.AdapterItem;
 import com.android.launcher3.util.ComponentKey;
@@ -56,7 +61,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -66,8 +71,8 @@ final class FullMergeAlgorithm implements AlphabeticalAppsList.MergeAlgorithm {
 
     @Override
     public boolean continueMerging(AlphabeticalAppsList.SectionInfo section,
-           AlphabeticalAppsList.SectionInfo withSection,
-           int sectionAppCount, int numAppsPerRow, int mergeCount) {
+                                   AlphabeticalAppsList.SectionInfo withSection,
+                                   int sectionAppCount, int numAppsPerRow, int mergeCount) {
         // Don't merge the predicted apps
         if (section.firstAppItem.viewType != AllAppsGridAdapter.ICON_VIEW_TYPE) {
             return false;
@@ -98,8 +103,8 @@ final class SimpleSectionMergeAlgorithm implements AlphabeticalAppsList.MergeAlg
 
     @Override
     public boolean continueMerging(AlphabeticalAppsList.SectionInfo section,
-           AlphabeticalAppsList.SectionInfo withSection,
-           int sectionAppCount, int numAppsPerRow, int mergeCount) {
+                                   AlphabeticalAppsList.SectionInfo withSection,
+                                   int sectionAppCount, int numAppsPerRow, int mergeCount) {
         // Don't merge the predicted apps
         if (section.firstAppItem.viewType != AllAppsGridAdapter.ICON_VIEW_TYPE) {
             return false;
@@ -135,18 +140,26 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     private static final int MIN_ROWS_IN_MERGED_SECTION_PHONE = 3;
     private static final int MAX_NUM_MERGES_PHONE = 2;
 
-    @Thunk Launcher mLauncher;
-    @Thunk AlphabeticalAppsList mApps;
+    @Thunk
+    Launcher mLauncher;
+    @Thunk
+    AlphabeticalAppsList mApps;
     private AllAppsGridAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.ItemDecoration mItemDecoration;
 
-    @Thunk View mContent;
-    @Thunk View mContainerView;
-    @Thunk View mRevealView;
-    @Thunk AllAppsRecyclerView mAppsRecyclerView;
-    @Thunk AllAppsSearchBarController mSearchBarController;
-//    private ViewGroup mSearchBarContainerView;
+    @Thunk
+    View mContent;
+    @Thunk
+    View mContainerView;
+    @Thunk
+    View mRevealView;
+    @Thunk
+    AllAppsRecyclerView mAppsRecyclerView;
+    ViewPager mViewPager;
+    @Thunk
+    AllAppsSearchBarController mSearchBarController;
+    //    private ViewGroup mSearchBarContainerView;
 //    private View mSearchBarView;
     private SpannableStringBuilder mSearchQueryBuilder = null;
 
@@ -182,7 +195,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         mLauncher = (Launcher) context;
         mSectionNamesMargin = res.getDimensionPixelSize(R.dimen.all_apps_grid_view_start_margin);
         mApps = new AlphabeticalAppsList(context);
-        mAdapter = new AllAppsGridAdapter(mLauncher, mApps, this, mLauncher, this);
+        mAdapter = new AllAppsGridAdapter(mLauncher, mApps, this, mLauncher, this, this);
         mApps.setAdapter(mAdapter);
         mLayoutManager = mAdapter.getLayoutManager();
         mItemDecoration = mAdapter.getItemDecoration();
@@ -325,7 +338,22 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
             mAppsRecyclerView.addItemDecoration(mItemDecoration);
         }
 
+        //A： allApp classify view
+        mViewPager = (ViewPager) findViewById(R.id.my_viewpager);
+        mViewPager.setPadding(0, 150, 0, 0);
         updateBackgroundAndPaddings();
+    }
+
+    public void setViewPagerAdapter(Map<String, List<AppInfo>> allAppsTypeMap, List<String> name) {
+        mViewPager.setTitle(name);
+        mViewPager.setAdapter(new MyViewPagerAdapter(mLauncher, allAppsTypeMap, name));
+    }
+
+    public void setViewPagerVisibility(int visibility, int position) {
+        Log.i("ViewPaper", "position " + position);
+        mAppsRecyclerView.setVisibility(GONE);
+        mViewPager.setVisibility(visibility);
+        mViewPager.setCurrentItem(position - 1);
     }
 
     @Override
@@ -507,7 +535,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
 
     @Override
     public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete,
-            boolean success) {
+                                boolean success) {
         if (isFlingToDelete || !success || (target != mLauncher.getWorkspace() &&
                 !(target instanceof DeleteDropTarget) && !(target instanceof Folder))) {
             // Exit spring loaded mode if we have not successfully dropped or have not handled the
@@ -632,7 +660,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         Selection.setSelection(mSearchQueryBuilder, 0);
     }
 
-/*M: notify the change of updating unread app*/
+    /*M: notify the change of updating unread app*/
     public void updateAppsUnreadChanged(ComponentName componentName, int unreadNum) {
         List<AdapterItem> mAdapterItems = mApps.getAdapterItems();
         final int size = mAdapterItems.size();
