@@ -120,6 +120,7 @@ public class LauncherStateTransitionAnimation {
             final boolean animated, final boolean startSearchAfterTransition) {
         final AllAppsContainerView toView = mLauncher.getAppsView();
         final View buttonView = mLauncher.getAllAppsButton();
+        toView.setMode();//A: modify allAppView mode
         PrivateTransitionCallbacks cb = new PrivateTransitionCallbacks() {
             @Override
             public float getMaterialRevealViewFinalAlpha(View revealView) {

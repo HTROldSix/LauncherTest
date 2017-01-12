@@ -17,60 +17,28 @@
 package com.android.launcher3;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
+import android.util.Log;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
  */
 public class SettingsActivity extends Activity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d("SettingsActivity", "onClickSettingsButton");
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new LauncherSettingsFragment())
                 .commit();
     }
 
-    /**
-     * This fragment shows the launcher preferences.
-     */
-    public static class LauncherSettingsFragment extends PreferenceFragment
-            implements OnPreferenceChangeListener {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.launcher_preferences);
-
-            SwitchPreference pref = (SwitchPreference) findPreference(
-                    Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
-            pref.setPersistent(false);
-
-            Bundle extras = new Bundle();
-            extras.putBoolean(LauncherSettings.Settings.EXTRA_DEFAULT_VALUE, false);
-            Bundle value = getActivity().getContentResolver().call(
-                    LauncherSettings.Settings.CONTENT_URI,
-                    LauncherSettings.Settings.METHOD_GET_BOOLEAN,
-                    Utilities.ALLOW_ROTATION_PREFERENCE_KEY, extras);
-            pref.setChecked(value.getBoolean(LauncherSettings.Settings.EXTRA_VALUE));
-
-            pref.setOnPreferenceChangeListener(this);
-        }
-
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            Bundle extras = new Bundle();
-            extras.putBoolean(LauncherSettings.Settings.EXTRA_VALUE, (Boolean) newValue);
-            getActivity().getContentResolver().call(
-                    LauncherSettings.Settings.CONTENT_URI,
-                    LauncherSettings.Settings.METHOD_SET_BOOLEAN,
-                    preference.getKey(), extras);
-            return true;
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.exit(0);
     }
 }

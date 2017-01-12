@@ -344,16 +344,20 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         updateBackgroundAndPaddings();
     }
 
+    public void setMode() {
+        mAdapter.setMode();
+        mAppsRecyclerView.setAdapter(mAdapter);
+        mAppsRecyclerView.invalidate();
+    }
+
     public void setViewPagerAdapter(Map<String, List<AppInfo>> allAppsTypeMap, List<String> name) {
         mViewPager.setTitle(name);
-        mViewPager.setAdapter(new MyViewPagerAdapter(mLauncher, allAppsTypeMap, name));
+        mViewPager.setAdapter(new MyViewPagerAdapter(mLauncher, allAppsTypeMap, name, this, mLauncher, mLauncher));
     }
 
     public void setViewPagerVisibility(int visibility, int position) {
-        Log.i("ViewPaper", "position " + position);
-        mAppsRecyclerView.setVisibility(GONE);
-        mViewPager.setVisibility(visibility);
-        mViewPager.setCurrentItem(position - 1);
+        mViewPager.setPadding(0, 150, 0, 0);
+        updateBackgroundAndPaddings();
     }
 
     @Override
@@ -458,6 +462,11 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
                     mSearchBarController.focusSearchField();
                 }
             }
+        }
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && mViewPager.getVisibility() == VISIBLE) {
+            mViewPager.setVisibility(GONE);
+            mAppsRecyclerView.setVisibility(VISIBLE);
+            return true;
         }
 
         return super.dispatchKeyEvent(event);

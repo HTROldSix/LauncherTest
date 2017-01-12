@@ -2,7 +2,6 @@ package com.android.launcher3;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -12,9 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.launcher3.allapps.AlphabeticalAppsList;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,15 +19,20 @@ import java.util.List;
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
     private List<AppInfo> mApps;
+    private Context mContext;
     private PackageManager packageManager;
-    private OnClickListener onClickListener;
+    private LayoutInflater mLayoutInflater;
+    private View.OnTouchListener mTouchListener;
+    private View.OnClickListener mIconClickListener;
+    static boolean visibility;
 
-    public interface OnClickListener{
-        public void onClick();
-    }
-
-    public void setOnClickListener(OnClickListener onClickListener){
-       this.onClickListener = onClickListener;
+    public MyRecyclerViewAdapter(Context context, List<AppInfo> mApps, View.OnTouchListener touchListener, View.OnClickListener iconClickListener) {
+        this.mApps = mApps;
+        mContext = context;
+        packageManager = context.getPackageManager();
+        mLayoutInflater = LayoutInflater.from(context);
+        mTouchListener = touchListener;
+        mIconClickListener = iconClickListener;
     }
 
     public MyRecyclerViewAdapter(Context context, List<AppInfo> mApps) {
@@ -41,47 +42,55 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view, parent, false);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(onClickListener != null){
-                    onClickListener.onClick();
-                }
-            }
-        });
-        return new ViewHolder(v);
+        Log.i("TAG", "onCreateViewHolder");
+        if (viewType == 1) {
+            View v = mLayoutInflater.inflate(R.layout.item_view, parent, false);
+            return new ViewHolder(v);
+        }
+        BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
+                R.layout.all_apps_icon, parent, false);
+        icon.setPadding(0, 10, 0, 0);
+        icon.setOnClickListener(mIconClickListener);
+        return new ViewHolder(icon);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setmTxt(mApps.get(position));
+        Log.i("TAG", "onBindViewHolder" + position);
+        if (position == 0) {
+            TextView textView = (TextView) holder.mContent.findViewById(R.id.textView);
+            textView.setVisibility(visibility ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            AppInfo info = mApps.get(position - 1);
+            BubbleTextView icon = (BubbleTextView) holder.mContent;
+            icon.applyFromApplicationInfo(info);
+        }
     }
 
     @Override
     public int getItemCount() {
         int i = mApps.size();
-        return i;
+        return i + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) return 1;
+        return 2;
     }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        Log.i("TAG", "onAttachedToRecyclerView");
         super.onAttachedToRecyclerView(recyclerView);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView mTxt;
+        public View mContent;
 
         public ViewHolder(View view) {
             super(view);
-            mTxt = (TextView) view.findViewById(R.id.textView);
-        }
-
-        void setmTxt(AppInfo appInfo) {
-            Drawable drawable = new BitmapDrawable(appInfo.iconBitmap);
-            drawable.setBounds(0, 0, Launcher.mDeviceProfile.iconSizePx, Launcher.mDeviceProfile.iconSizePx);
-            mTxt.setCompoundDrawables(null, drawable, null, null);
-            mTxt.setText(appInfo.title);
+            mContent = view;
         }
     }
 }

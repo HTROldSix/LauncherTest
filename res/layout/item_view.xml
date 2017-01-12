@@ -10,5 +10,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+<<<<<<< Updated upstream
         android:text="Text" />
+=======
+<<<<<<< HEAD
+        android:paddingTop="20dp"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:visibility="invisible"
+        android:text="*拖动移出文件夹*" />
+=======
+        android:text="Text" />
+>>>>>>> 3b2f61c84880daedcec0d14d58e0280c6ae8060d
+>>>>>>> Stashed changes
 </LinearLayout>

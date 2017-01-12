@@ -17,6 +17,7 @@ package com.android.launcher3.allapps;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -24,7 +25,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.net.Uri;
@@ -45,6 +45,7 @@ import com.android.launcher3.FolderIcon;
 import com.android.launcher3.FolderInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
+import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.ShortcutInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.ViewPager;
@@ -406,7 +407,6 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         if (marketInfo != null) {
             mMarketAppName = marketInfo.loadLabel(pm).toString();
         }
-
         view = v;
     }
 
@@ -470,6 +470,11 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     Map<String, List<AppInfo>> allAppsTypeMap;
     List<String> name;
     ArrayList<AppInfo> infoArrayList;
+
+    public void setMode() {
+        SharedPreferences sp = mLauncher.getSharedPreferences("allappmode", 4);
+        isFolderMode = sp.getBoolean("appclassify", false);
+    }
 
     private void initAllAppsClassify() {
         if (allAppsTypeMap != null) {
@@ -563,11 +568,11 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                 } else {
                     BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
                             R.layout.all_apps_icon, parent, false);
-                    icon.setOnTouchListener(mTouchListener);
+//                    icon.setOnTouchListener(mTouchListener);
                     icon.setOnClickListener(mIconClickListener);
                     icon.setOnLongClickListener(mIconLongClickListener);
-                    icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
-                            .getLongPressTimeout());
+//                    icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
+//                            .getLongPressTimeout());
                     icon.setFocusable(true);
                     return new ViewHolder(icon);
                 }
@@ -610,6 +615,24 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+        Log.i("Launcher.AppClassify", "onBindViewHolder " + position + " - " + holder.getItemViewType());
+        initAllAppsClassify();
+        try {
+            FolderIcon folderIcon = (FolderIcon) holder.mContent;
+            folderIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    view.setViewPagerVisibility(0, position);
+                }
+            });
+            folderIcon.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
+        } catch (ClassCastException e) {
+    }
         Log.i("Launcher.AppClassify", "onBindViewHolder " + position + " - " +holder.getItemViewType());
         initAllAppsClassify();
         holder.mContent.setOnClickListener(new View.OnClickListener() {

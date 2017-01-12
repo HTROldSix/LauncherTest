@@ -2324,14 +2324,24 @@ public class ViewPager extends ViewGroup {
     int mPosition;
     float offset;
     List<String> name;
+    boolean hideTitle;
 
     public void setTitle(List<String> name) {
         this.name = name;
     }
 
+    public void setInvalidate(boolean hideTitle) {
+        this.hideTitle = hideTitle;
+        invalidate();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.i("TAG", "onDraw");
         super.onDraw(canvas);
+        if (hideTitle) {
+            return;
+        }
         width = canvas.getWidth() / 2;
         float currentPageSize = width / 10;
         float size = width / 10;

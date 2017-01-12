@@ -72,6 +72,7 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -549,7 +550,7 @@ public class Launcher extends Activity
         super.onCreate(savedInstanceState);
         mmSavedInstanceState = savedInstanceState;//lihuachun
         int version = android.os.Build.VERSION.SDK_INT;
-        if(version>=23) {
+        if (version >= 23) {
             if (getApplicationContext().checkSelfPermission(
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                     ) {
@@ -562,7 +563,7 @@ public class Launcher extends Activity
                 onCreateContinue(mmSavedInstanceState);
 
             }
-        }else{
+        } else {
 
             //onCreateContinue(mSavedInstanceState);
             mPermissionReqProcessed = true;
@@ -764,7 +765,7 @@ public class Launcher extends Activity
 
     public boolean setLauncherCallbacks(LauncherCallbacks callbacks) {
         mLauncherCallbacks = callbacks;
-        Log.i("ssss","chu shi hua mLauncherCallbacks");
+        Log.i("ssss", "chu shi hua mLauncherCallbacks");
         mLauncherCallbacks.setLauncherSearchCallback(new Launcher.LauncherSearchCallbacks() {
             private boolean mWorkspaceImportanceStored = false;
             private boolean mHotseatImportanceStored = false;
@@ -1162,8 +1163,8 @@ public class Launcher extends Activity
 
                 // permission was granted, yay! Do the
                 // Storage-related task you need to do.
-               mPermissionReqProcessed = true;
-               onCreateContinue(mmSavedInstanceState);
+                mPermissionReqProcessed = true;
+                onCreateContinue(mmSavedInstanceState);
                 onResumeContinue();
             } else {
 
@@ -1310,7 +1311,7 @@ public class Launcher extends Activity
 
         super.onResume();
         if (mPermissionReqProcessed) {
-        //if (true) {
+            //if (true) {
             onResumeContinue();
         }
     }
@@ -1343,7 +1344,7 @@ public class Launcher extends Activity
         setWorkspaceBackground(mState == State.WORKSPACE ? WORKSPACE_BACKGROUND_GRADIENT
                 : WORKSPACE_BACKGROUND_TRANSPARENT);
 
-        Log.i("ssss","continueResume");
+        Log.i("ssss", "continueResume");
         mPaused = false;
         if (mRestoring || mOnResumeNeedsLoad) {
             setWorkspaceLoading(true);
@@ -1440,26 +1441,23 @@ public class Launcher extends Activity
 
         mPaused = true;
 
-try {
-    mDragController.cancelDrag();
-    mDragController.resetLastGestureUpTime();
-}
-catch (NullPointerException e){
-    
+        try {
+            mDragController.cancelDrag();
+            mDragController.resetLastGestureUpTime();
+        } catch (NullPointerException e) {
 
-}
+
+        }
 
         // We call onHide() aggressively. The custom content callbacks should be able to
         // debounce excess onHide calls.
-try {
-    if (mWorkspace.getCustomContentCallbacks() != null) {
-        mWorkspace.getCustomContentCallbacks().onHide();
-    }
-}
-catch (NullPointerException e)
-{
-    
-}
+        try {
+            if (mWorkspace.getCustomContentCallbacks() != null) {
+                mWorkspace.getCustomContentCallbacks().onHide();
+            }
+        } catch (NullPointerException e) {
+
+        }
 
         // Add by yeyu for screen edit 20160910 start
         if (isWorkspacePreviewMode() && RGKPreviewConfigure.isMove) {
@@ -1671,8 +1669,7 @@ catch (NullPointerException e)
             mDefaultKeySsb.clear();
             mDefaultKeySsb.clearSpans();
             Selection.setSelection(mDefaultKeySsb, 0);
-        }
-        catch(NullPointerException e){
+        } catch (NullPointerException e) {
 
 
         }
@@ -2443,19 +2440,17 @@ catch (NullPointerException e)
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-try {
-    if (mWorkspace.getChildCount() > 0) {
-        outState.putInt(RUNTIME_STATE_CURRENT_SCREEN,
-                mWorkspace.getCurrentPageOffsetFromCustomContent());
-    } else { /// M: If workspcae no initialized, use saved last restore workspace screen.
-        outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, mCurrentWorkSpaceScreen);
-    }
-}
-catch (NullPointerException e)
-{
+        try {
+            if (mWorkspace.getChildCount() > 0) {
+                outState.putInt(RUNTIME_STATE_CURRENT_SCREEN,
+                        mWorkspace.getCurrentPageOffsetFromCustomContent());
+            } else { /// M: If workspcae no initialized, use saved last restore workspace screen.
+                outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, mCurrentWorkSpaceScreen);
+            }
+        } catch (NullPointerException e) {
 
 
-}
+        }
         super.onSaveInstanceState(outState);
 
         outState.putInt(RUNTIME_STATE, mState.ordinal());
@@ -3095,7 +3090,7 @@ catch (NullPointerException e)
         /// M: add systrace to analyze application launche time.
         // Trace.traceEnd(Trace.TRACE_TAG_INPUT);  // wangjun delete ---__JEF_COMPILE_PASS__
     }
-
+private int i = 0;
     //add by zhaopenglin for double click launch t9 start
     private int count = 0;
     private long firstClick = 0;
@@ -4952,7 +4947,7 @@ catch (NullPointerException e)
     ArrayList<AppInfo> mTmpAppsList;
     private Runnable mBindAllApplicationsRunnable = new Runnable() {
         public void run() {
-            Log.i("ssss","mTmpAppsList = "+mTmpAppsList);
+            Log.i("ssss", "mTmpAppsList = " + mTmpAppsList);
             bindAllApplications(mTmpAppsList);
             mTmpAppsList = null;
         }
@@ -4969,17 +4964,17 @@ catch (NullPointerException e)
         }
 
         if (waitUntilResume(mBindAllApplicationsRunnable, true)) {
-            Log.i("ssss","mTmpAppsList = apps");
+            Log.i("ssss", "mTmpAppsList = apps");
             mTmpAppsList = apps;
             return;
         }
 
         if (mAppsView != null) {
-            Log.i("ssss","mAppsView != null");
+            Log.i("ssss", "mAppsView != null");
             mAppsView.setApps(apps);
         }
 
-        Log.i("ssss","bindAllApplication "+(mLauncherCallbacks != null));
+        Log.i("ssss", "bindAllApplication " + (mLauncherCallbacks != null));
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.bindAllApplications(apps);
         }
@@ -5448,7 +5443,7 @@ catch (NullPointerException e)
         if (activityInfo == null) {
             return null;
         }
-        return new AppInfo(this, activityInfo, user, mIconCache,"5451");
+        return new AppInfo(this, activityInfo, user, mIconCache, "5451");
     }
 
     // TODO: This method should be a part of LauncherSearchCallback
