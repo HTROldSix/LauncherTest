@@ -2320,7 +2320,6 @@ public class ViewPager extends ViewGroup {
     Paint p = new Paint();
     float width;
     float off;
-    float offOld;
     int mPosition;
     float offset;
     List<String> name;

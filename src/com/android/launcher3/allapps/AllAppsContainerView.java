@@ -340,7 +340,6 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
 
         //A： allApp classify view
         mViewPager = (ViewPager) findViewById(R.id.my_viewpager);
-        mViewPager.setPadding(0, 150, 0, 0);
         updateBackgroundAndPaddings();
     }
 
@@ -356,8 +355,10 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     }
 
     public void setViewPagerVisibility(int visibility, int position) {
-        mViewPager.setPadding(0, 150, 0, 0);
-        updateBackgroundAndPaddings();
+        Log.i("ViewPaper", "position " + position);
+        mAppsRecyclerView.setVisibility(GONE);
+        mViewPager.setVisibility(visibility);
+        mViewPager.setCurrentItem(position - 1);
     }
 
     @Override

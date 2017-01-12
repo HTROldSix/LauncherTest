@@ -632,28 +632,14 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                 }
             });
         } catch (ClassCastException e) {
-    }
-        Log.i("Launcher.AppClassify", "onBindViewHolder " + position + " - " +holder.getItemViewType());
-        initAllAppsClassify();
-        holder.mContent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                view.setViewPagerVisibility(0, position);
-            }
-        });
-        holder.mContent.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return false;
-            }
-        });
+        }
         switch (holder.getItemViewType()) {
             case ICON_VIEW_TYPE: {
                 if (isFolderMode) {
                     FolderIcon fi = (FolderIcon) holder.mContent;
                     TextView tv = (TextView) fi.findViewById(R.id.tv_folder_name);
                     tv.setVisibility(View.VISIBLE);
-                    String appType = name.get(position-1);
+                    String appType = name.get(position - 1);
                     tv.setText(appType);
                     List<AppInfo> list = allAppsTypeMap.get(appType);
                     for (AppInfo info : list) {
@@ -698,7 +684,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         initAllAppsClassify();
         if (isFolderMode) {
             if (allAppsTypeMap != null) {
-                return allAppsTypeMap.size()+1;
+                return allAppsTypeMap.size() + 1;
             }
             return 0;
         }
