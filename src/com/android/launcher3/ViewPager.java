@@ -63,11 +63,15 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import com.android.launcher3.allapps.FixedSpeedScroller;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import transforms.RotateUpTransformer;
 
 /**
  * Layout manager that allows the user to flip left and right
@@ -374,7 +378,7 @@ public class ViewPager extends ViewGroup {
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setFocusable(true);
         final Context context = getContext();
-        mScroller = new Scroller(context, sInterpolator);
+        mScroller = new FixedSpeedScroller(context, sInterpolator);
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         final float density = context.getResources().getDisplayMetrics().density;
 
@@ -504,7 +508,8 @@ public class ViewPager extends ViewGroup {
      */
     public void setCurrentItem(int item) {
         mPopulatePending = false;
-        offset = item;
+        if(initialization == -1)
+            initialization = item;
         setCurrentItemInternal(item, !mFirstLayout, false);
     }
 
@@ -1721,7 +1726,6 @@ public class ViewPager extends ViewGroup {
     @CallSuper
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
         // Offset any decor views if needed - keep them on-screen at all times.
-        Log.i("ViewPaper", position + " -- " + offset);
         mPosition = position;
         off = offset;
         if (mDecorChildCount > 0) {
@@ -1880,6 +1884,8 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    float mDownX, mDownY;
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         /*
@@ -1887,13 +1893,10 @@ public class ViewPager extends ViewGroup {
          * If we return true, onMotionEvent will be called and we do the actual
          * scrolling there.
          */
-
         final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
-
         // Always take care of the touch gesture being complete.
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             // Release the drag.
-            if (DEBUG) Log.v(TAG, "Intercept done!");
             resetTouch();
             return false;
         }
@@ -1905,14 +1908,17 @@ public class ViewPager extends ViewGroup {
                 if (DEBUG) Log.v(TAG, "Intercept returning true!");
                 return true;
             }
-            if (mIsUnableToDrag) {
+            /*if (mIsUnableToDrag) {
                 if (DEBUG) Log.v(TAG, "Intercept returning false!");
                 return false;
-            }
+            }*/
         }
 
         switch (action) {
             case MotionEvent.ACTION_MOVE: {
+                if (Math.abs(ev.getX() - mDownX) > Math.abs(ev.getY() - mDownY)) {
+                    mIsBeingDragged = true;
+                }
                 /*
                  * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
                  * whether the user has moved far enough from his original down touch.
@@ -1975,8 +1981,8 @@ public class ViewPager extends ViewGroup {
                  * Remember location of down touch.
                  * ACTION_DOWN always refers to pointer index 0.
                  */
-                mLastMotionX = mInitialMotionX = ev.getX();
-                mLastMotionY = mInitialMotionY = ev.getY();
+                mDownX = mLastMotionX = mInitialMotionX = ev.getX();
+                mDownY = mLastMotionY = mInitialMotionY = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsUnableToDrag = false;
 
@@ -2321,9 +2327,9 @@ public class ViewPager extends ViewGroup {
     float width;
     float off;
     int mPosition;
-    float offset;
     List<String> name;
     boolean hideTitle;
+    static int initialization = -1;
 
     public void setTitle(List<String> name) {
         this.name = name;
@@ -2336,11 +2342,7 @@ public class ViewPager extends ViewGroup {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.i("TAG", "onDraw");
         super.onDraw(canvas);
-        if (hideTitle) {
-            return;
-        }
         width = canvas.getWidth() / 2;
         float currentPageSize = width / 10;
         float size = width / 10;
@@ -2349,11 +2351,16 @@ public class ViewPager extends ViewGroup {
         currentPage.setColor(Color.GREEN);
         p.setTextSize(size);
         p.setColor(Color.BLUE);
+        width = width + (2 * width - 180) * off + 2 * (mPosition - initialization) * width;
+        if (hideTitle) {
+            canvas.drawText("移出应用", width - currentPageSize, 70, currentPage);
+            return;
+        }
         // Draw the margin drawable between pages if needed.
+        //Log.i("ViewPager", off + "-" + mPosition + "-" + initialization + "- " + width);
         try {
             switch (mPosition) {
                 case 0:
-                    width = width + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize, 70, currentPage);
                     canvas.drawText(name.get(1), width + currentPageSize + margin, 70, p);
@@ -2364,7 +2371,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin + size * 20 + margin * 5, 70, p);
                     break;
                 case 1:
-                    width = width * 3 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - margin - size * 4, 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize, 70, currentPage);
@@ -2375,7 +2381,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin + size * 16 + margin * 4, 70, p);
                     break;
                 case 2:
-                    width = width * 5 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - 2 * (margin + size * 4), 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize - margin - size * 4, 70, p);
@@ -2386,7 +2391,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin + size * 12 + margin * 3, 70, p);
                     break;
                 case 3:
-                    width = width * 7 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - 3 * (margin + size * 4), 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize - 2 * (margin + size * 4), 70, p);
@@ -2397,7 +2401,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin + size * 8 + margin * 2, 70, p);
                     break;
                 case 4:
-                    width = width * 9 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - 4 * (margin + size * 4), 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize - 3 * (margin + size * 4), 70, p);
@@ -2408,7 +2411,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin + size * 4 + margin, 70, p);
                     break;
                 case 5:
-                    width = width * 11 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - 5 * (margin + size * 4), 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize - 4 * (margin + size * 4), 70, p);
@@ -2419,7 +2421,6 @@ public class ViewPager extends ViewGroup {
                     canvas.drawText(name.get(6), width + currentPageSize + margin, 70, p);
                     break;
                 case 6:
-                    width = width * 13 + (2 * width - 180) * off - 2 * offset * width;
                     currentPageSize += currentPageSize;
                     canvas.drawText(name.get(0), width - currentPageSize - 6 * (margin + size * 4), 70, p);
                     canvas.drawText(name.get(1), width - currentPageSize - 5 * (margin + size * 4), 70, p);
@@ -2433,7 +2434,6 @@ public class ViewPager extends ViewGroup {
                     break;
             }
         } catch (IndexOutOfBoundsException e) {
-            Log.e("ViewPaper", "ViewPager IndexOutOfBoundsException e " + e);
         }
         if (mPageMargin > 0 && mMarginDrawable != null && mItems.size() > 0 && mAdapter != null) {
             final int scrollX = getScrollX();

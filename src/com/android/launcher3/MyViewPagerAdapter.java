@@ -1,16 +1,14 @@
 package com.android.launcher3;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
+
+import com.android.launcher3.allapps.AllAppsContainerView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,17 +17,16 @@ import java.util.Map;
  */
 public class MyViewPagerAdapter extends PagerAdapter {
 
-    Context mContext;
-    List<View> viewLists = new ArrayList<>();
-    int columnsNumber = 4;
-    int size;
-    ViewPager v;
+    private List<View> viewLists = new ArrayList<>();
+    private int columnsNumber = 4;
+    private ViewPager v;
+    private AllAppsContainerView mAllAppsContainerView;
+    private boolean isRemove;
 
     public MyViewPagerAdapter(Context context, Map<String, List<AppInfo>> allAppsTypeMap, List<String> name,
                               View.OnTouchListener touchListener,
-                              View.OnClickListener iconClickListener, Launcher mLauncher) {
-        mContext = context;
-        size = allAppsTypeMap.size();
+                              View.OnClickListener iconClickListener, Launcher mLauncher, AllAppsContainerView allAppsContainerView) {
+        mAllAppsContainerView = allAppsContainerView;
         try {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(context, columnsNumber);
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -204,28 +201,63 @@ public class MyViewPagerAdapter extends PagerAdapter {
         public void onSelectedChanged(android.support.v7.widget.RecyclerView.ViewHolder viewHolder, int actionState) {
 //            if (viewHolder != null && viewHolder.itemView != null) viewHolder.itemView.setVisibility(View.INVISIBLE);
             if (v != null) {
-                MyRecyclerViewAdapter.visibility = actionState == 2;
-                if (MyRecyclerViewAdapter.visibility) {
-                    v.setInvalidate(true);//ACTION_DOWN 2  ACTION_UP 0
-                    myRecyclerViewAdapter.notifyItemChanged(0);
+                if (actionState == 2) {
+                    v.setInvalidate(true);//ACTION_DOWN 2
                 } else {
-                    myRecyclerViewAdapter.notifyItemChanged(0);
-                    v.setInvalidate(false);//ACTION_DOWN 2  ACTION_UP 0
+                    v.setInvalidate(false);//ACTION_UP 0
+                    if (isRemove) {
+                        mAllAppsContainerView.setViewPagerVisibility(0, 8);
+                        mAllAppsContainerView.refreshAllAppAdapter(appInfo);
+                        isRemove = false;
+                    } else {
+                        mAllAppsContainerView.refreshAllAppFodler();
+                    }
                 }
             }
             super.onSelectedChanged(viewHolder, actionState);
         }
 
+        AppInfo appInfo;
 
         @Override
         public boolean onMove(android.support.v7.widget.RecyclerView recyclerView, android.support.v7.widget.RecyclerView.ViewHolder viewHolder,
                               android.support.v7.widget.RecyclerView.ViewHolder target) {
-            if (viewHolder.getAdapterPosition() == 0 || target.getAdapterPosition() == 0)
-                return false;
+
+            if (target.getAdapterPosition() == 0 && !isRemove) {
+                try {
+                    appInfo = list.remove(viewHolder.getAdapterPosition() - 1);
+                    myRecyclerViewAdapter.notifyDataSetChanged();
+                    isRemove = true;
+                } catch (IndexOutOfBoundsException e) {
+                    Log.i("ViewPager", "IndexOutOfBoundsException");
+                }
+                return true;
+            }
             // 移动时更改列表中对应的位置并返回true
-            Collections.swap(list, viewHolder.getAdapterPosition() - 1, target
-                    .getAdapterPosition() - 1);
+//            Collections.swap(list, viewHolder.getAdapterPosition() - 1, target
+//                    .getAdapterPosition() - 1);
+            //更新list  改变文件夹中item顺序
+            int itemPosition = viewHolder.getAdapterPosition() - 1;
+            int targetPosition = target.getAdapterPosition() - 1;
+            if (itemPosition < 0 || targetPosition < 0) {
+                return false;
+            }
+            onSwap(list, itemPosition, targetPosition);
             return true;
+        }
+
+        private void onSwap(List<AppInfo> list, int index1, int index2) {
+            if (index2 > index1) {//向后拖动
+                AppInfo appInfo = list.get(index2);
+                for (int i = index1; i <= index2; i++) {
+                    appInfo = list.set(i, appInfo);
+                }
+            } else {//向前移动
+                AppInfo appInfo = list.get(index2);
+                for (int i = index1; i >= index2; i--) {
+                    appInfo = list.set(i, appInfo);
+                }
+            }
         }
 
         /*
@@ -234,6 +266,7 @@ public class MyViewPagerAdapter extends PagerAdapter {
         @Override
         public void onMoved(android.support.v7.widget.RecyclerView recyclerView, android.support.v7.widget.RecyclerView.ViewHolder viewHolder, int
                 fromPos, android.support.v7.widget.RecyclerView.ViewHolder target, int toPos, int x, int y) {
+            if(isRemove){return;}
             super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
             // 移动完成后刷新列表
             myRecyclerViewAdapter.notifyItemMoved(viewHolder.getAdapterPosition(), target

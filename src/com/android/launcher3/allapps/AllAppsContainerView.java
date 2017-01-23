@@ -19,7 +19,7 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -29,13 +29,10 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.BaseContainerView;
@@ -57,11 +54,24 @@ import com.android.launcher3.allapps.AlphabeticalAppsList.AdapterItem;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.Thunk;
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import transforms.AccordionTransformer;
+import transforms.BackgroundToForegroundTransformer;
+import transforms.CubeInTransformer;
+import transforms.CubeOutTransformer;
+import transforms.DepthPageTransformer;
+import transforms.FlipHorizontalTransformer;
+import transforms.FlipVerticalTransformer;
+import transforms.ForegroundToBackgroundTransformer;
+import transforms.RotateUpTransformer;
+import transforms.ScaleInOutTransformer;
+import transforms.StackTransformer;
 
 
 /**
@@ -340,25 +350,49 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
 
         //A： allApp classify view
         mViewPager = (ViewPager) findViewById(R.id.my_viewpager);
+        mViewPager.setPageTransformer(true, new StackTransformer();
         updateBackgroundAndPaddings();
     }
 
     public void setMode() {
-        mAdapter.setMode();
-        mAppsRecyclerView.setAdapter(mAdapter);
-        mAppsRecyclerView.invalidate();
+        SharedPreferences sp = mLauncher.getSharedPreferences("allappmode", 4);
+        if (sp.getBoolean("refresh", true)) {
+            mAdapter.setMode(sp.getBoolean("appclassify", false));
+            mAppsRecyclerView.setAdapter(mAdapter);
+            mAppsRecyclerView.invalidate();
+            sp.edit().putBoolean("refresh", false).commit();
+        }
     }
 
     public void setViewPagerAdapter(Map<String, List<AppInfo>> allAppsTypeMap, List<String> name) {
         mViewPager.setTitle(name);
-        mViewPager.setAdapter(new MyViewPagerAdapter(mLauncher, allAppsTypeMap, name, this, mLauncher, mLauncher));
+        mViewPager.setAdapter(new MyViewPagerAdapter(mLauncher, allAppsTypeMap, name, this, mLauncher, mLauncher, this));
     }
 
-    public void setViewPagerVisibility(int visibility, int position) {
-        Log.i("ViewPaper", "position " + position);
-        mAppsRecyclerView.setVisibility(GONE);
-        mViewPager.setVisibility(visibility);
+    public void setViewPagerVisibility(int AppsRecyclerViewVisibility, int ViewPagerVisibility, int position) {
+        mAppsRecyclerView.setVisibility(AppsRecyclerViewVisibility);
+        mViewPager.setVisibility(ViewPagerVisibility);
         mViewPager.setCurrentItem(position - 1);
+    }
+
+    public void setViewPagerVisibility(int AppsRecyclerViewVisibility, int ViewPagerVisibility) {
+        mAppsRecyclerView.setVisibility(AppsRecyclerViewVisibility);
+        mViewPager.setVisibility(ViewPagerVisibility);
+    }
+
+    /**
+     * Change the sorting of item in a folder
+     */
+    public void refreshAllAppFodler() {
+        mAdapter.notifyItemChanged(mViewPager.getCurrentItem() + 1);
+    }
+
+    /**
+     * Change the data of AllAppsGridAdapter
+     */
+    public void refreshAllAppAdapter(AppInfo appInfo) {
+        mAdapter.setItemAppInfo(appInfo);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

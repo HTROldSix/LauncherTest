@@ -78,6 +78,8 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     public static final int SEARCH_MARKET_DIVIDER_VIEW_TYPE = 4;
     // The message to continue to a market search when there are no filtered results
     public static final int SEARCH_MARKET_VIEW_TYPE = 5;
+    // The message to folder
+    public static final int APP_FOLDER = 6;
 
     /**
      * ViewHolder for each icon.
@@ -468,18 +470,23 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     boolean isFolderMode = true;
     AllAppsContainerView view;
     Map<String, List<AppInfo>> allAppsTypeMap;
+    int allAppsTypeMapSize;
     List<String> name;
-    ArrayList<AppInfo> infoArrayList;
+    List<AppInfo> itemAppInfo;
 
-    public void setMode() {
-        SharedPreferences sp = mLauncher.getSharedPreferences("allappmode", 4);
-        isFolderMode = sp.getBoolean("appclassify", false);
+    public void setMode(boolean isFolderMode) {
+        this.isFolderMode = isFolderMode;
+    }
+
+    public void setItemAppInfo(AppInfo appInfo) {
+        itemAppInfo.add(appInfo);
     }
 
     private void initAllAppsClassify() {
         if (allAppsTypeMap != null) {
             return;
         }
+        itemAppInfo = new ArrayList<>();
         allAppsTypeMap = new TreeMap<>();
         name = new ArrayList<>();
         List<AppInfo> systemApps = new ArrayList<>();
@@ -491,7 +498,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         List<AppInfo> otherApps = new ArrayList<>();
         Resources resources = mLauncher.getResources();
         AppInfo info;
-        infoArrayList = Launcher.mModel.mBgAllAppsList.data;
+        ArrayList<AppInfo> infoArrayList = Launcher.mModel.mBgAllAppsList.data;
         int size = infoArrayList.size();
         for (int i = 1; i < size; i++) {
             info = infoArrayList.get(i);
@@ -548,6 +555,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
             name.add(resources.getString(R.string.ft_other));
             allAppsTypeMap.put(resources.getString(R.string.ft_other), otherApps);
         }
+        allAppsTypeMapSize = allAppsTypeMap.size();
         setViewPagerAdapter();
     }
 
@@ -561,21 +569,15 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
             case SECTION_BREAK_VIEW_TYPE:
                 return new ViewHolder(new View(parent.getContext()));
             case ICON_VIEW_TYPE: {
-                if (isFolderMode) {
-                    final FolderInfo folderInfo = new FolderInfo();
-                    FolderIcon newFolder = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, parent, folderInfo, null, "");
-                    return new ViewHolder(newFolder);
-                } else {
-                    BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
-                            R.layout.all_apps_icon, parent, false);
-//                    icon.setOnTouchListener(mTouchListener);
-                    icon.setOnClickListener(mIconClickListener);
-                    icon.setOnLongClickListener(mIconLongClickListener);
-//                    icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
-//                            .getLongPressTimeout());
-                    icon.setFocusable(true);
-                    return new ViewHolder(icon);
-                }
+                BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
+                        R.layout.all_apps_icon, parent, false);
+                icon.setOnTouchListener(mTouchListener);
+                icon.setOnClickListener(mIconClickListener);
+                icon.setOnLongClickListener(mIconLongClickListener);
+                icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
+                        .getLongPressTimeout());
+                icon.setFocusable(true);
+                return new ViewHolder(icon);
             }
             case PREDICTION_ICON_VIEW_TYPE: {
                 BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
@@ -608,48 +610,34 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                     }
                 });
                 return new ViewHolder(searchMarketView);
+            case APP_FOLDER:
+                final FolderInfo folderInfo = new FolderInfo();
+                FolderIcon newFolder = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, parent, folderInfo, null, "");
+                return new ViewHolder(newFolder);
             default:
                 throw new RuntimeException("Unexpected view type");
         }
     }
 
+    public int index = -1;
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        Log.i("Launcher.AppClassify", "onBindViewHolder " + position + " - " + holder.getItemViewType());
         initAllAppsClassify();
-        try {
-            FolderIcon folderIcon = (FolderIcon) holder.mContent;
-            folderIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    view.setViewPagerVisibility(0, position);
-                }
-            });
-            folderIcon.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    return false;
-                }
-            });
-        } catch (ClassCastException e) {
-        }
         switch (holder.getItemViewType()) {
             case ICON_VIEW_TYPE: {
+                AppInfo info;
                 if (isFolderMode) {
-                    FolderIcon fi = (FolderIcon) holder.mContent;
-                    TextView tv = (TextView) fi.findViewById(R.id.tv_folder_name);
-                    tv.setVisibility(View.VISIBLE);
-                    String appType = name.get(position - 1);
-                    tv.setText(appType);
-                    List<AppInfo> list = allAppsTypeMap.get(appType);
-                    for (AppInfo info : list) {
-                        fi.addItem(new ShortcutInfo(info));
-                    }
+                    info = itemAppInfo.get(position - allAppsTypeMapSize - 1);
                 } else {
-                    AppInfo info = mApps.getAdapterItems().get(position).appInfo;
-                    BubbleTextView icon = (BubbleTextView) holder.mContent;
-                    icon.applyFromApplicationInfo(info);
+                    info = mApps.getAdapterItems().get(position).appInfo;
                 }
+                BubbleTextView icon = (BubbleTextView) holder.mContent;
+                icon.applyFromApplicationInfo(info);
                 break;
             }
             case PREDICTION_ICON_VIEW_TYPE: {
@@ -676,6 +664,32 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                     searchView.setVisibility(View.GONE);
                 }
                 break;
+
+            case APP_FOLDER:
+                FolderIcon fi = (FolderIcon) holder.mContent;
+                TextView tv = (TextView) fi.findViewById(R.id.tv_folder_name);
+                fi.getFolder().getFolderPagedView().bindItemsNull();
+                tv.setVisibility(View.VISIBLE);
+                String appType = name.get(position - 1);
+                tv.setText(appType);
+                List<AppInfo> list = allAppsTypeMap.get(appType);
+                for (AppInfo info : list) {
+                    Log.i("ViewPager", "" + info.title);
+                    fi.addItem(new ShortcutInfo(info));
+                }
+                fi.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        view.setViewPagerVisibility(8, 0, position);
+                    }
+                });
+                fi.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        return false;
+                    }
+                });
+                break;
         }
     }
 
@@ -684,7 +698,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
         initAllAppsClassify();
         if (isFolderMode) {
             if (allAppsTypeMap != null) {
-                return allAppsTypeMap.size() + 1;
+                return allAppsTypeMapSize + 1 + itemAppInfo.size();
             }
             return 0;
         }
@@ -694,6 +708,12 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     @Override
     public int getItemViewType(int position) {
         AlphabeticalAppsList.AdapterItem item = mApps.getAdapterItems().get(position);
+        if (position == 0) {
+            return item.viewType;
+        }
+        if (isFolderMode && position < allAppsTypeMapSize + 1) {
+            return APP_FOLDER;
+        }
         return item.viewType;
     }
 

@@ -69,6 +69,7 @@ public class LauncherSettingsFragment extends PreferenceFragment
             SharedPreferences sharedPreferences = getActivity().getSharedPreferences("allappmode", 4);
             SharedPreferences.Editor spe = sharedPreferences.edit();
             spe.putBoolean("appclassify", (Boolean) newValue);
+            spe.putBoolean("refresh", true);
             spe.commit();
         }
 

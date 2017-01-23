@@ -1563,4 +1563,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
         return childrenLayouts;
     }
+
+    public FolderPagedView getFolderPagedView(){
+        return mContent;
+    }
 }

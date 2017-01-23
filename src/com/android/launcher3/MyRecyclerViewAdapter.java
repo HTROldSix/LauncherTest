@@ -19,47 +19,32 @@ import java.util.List;
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
     private List<AppInfo> mApps;
-    private Context mContext;
-    private PackageManager packageManager;
     private LayoutInflater mLayoutInflater;
-    private View.OnTouchListener mTouchListener;
     private View.OnClickListener mIconClickListener;
-    static boolean visibility;
 
     public MyRecyclerViewAdapter(Context context, List<AppInfo> mApps, View.OnTouchListener touchListener, View.OnClickListener iconClickListener) {
         this.mApps = mApps;
-        mContext = context;
-        packageManager = context.getPackageManager();
         mLayoutInflater = LayoutInflater.from(context);
-        mTouchListener = touchListener;
         mIconClickListener = iconClickListener;
-    }
-
-    public MyRecyclerViewAdapter(Context context, List<AppInfo> mApps) {
-        this.mApps = mApps;
-        packageManager = context.getPackageManager();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.i("TAG", "onCreateViewHolder");
         if (viewType == 1) {
             View v = mLayoutInflater.inflate(R.layout.item_view, parent, false);
             return new ViewHolder(v);
         }
         BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
                 R.layout.all_apps_icon, parent, false);
-        icon.setPadding(0, 10, 0, 0);
+        icon.setPadding(0, 15, 0, 0);
         icon.setOnClickListener(mIconClickListener);
         return new ViewHolder(icon);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.i("TAG", "onBindViewHolder" + position);
         if (position == 0) {
-            TextView textView = (TextView) holder.mContent.findViewById(R.id.textView);
-            textView.setVisibility(visibility ? View.VISIBLE : View.INVISIBLE);
+//            TextView textView = (TextView) holder.mContent.findViewById(R.id.textView);
         } else {
             AppInfo info = mApps.get(position - 1);
             BubbleTextView icon = (BubbleTextView) holder.mContent;
@@ -81,7 +66,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        Log.i("TAG", "onAttachedToRecyclerView");
         super.onAttachedToRecyclerView(recyclerView);
     }
 

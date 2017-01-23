@@ -12,7 +12,7 @@
         android:gravity="center"
         android:paddingTop="20dp"
         android:textSize="20sp"
-        android:textColor="#ffffff"
+        android:textColor="@color/green"
         android:visibility="invisible"
         android:text="*拖动移出文件夹*" />
 </LinearLayout>
