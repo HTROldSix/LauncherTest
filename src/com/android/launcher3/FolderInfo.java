@@ -101,7 +101,7 @@ public class FolderInfo extends ItemInfo {
     @Override
     void onAddToDatabase(Context context, ContentValues values) {
         super.onAddToDatabase(context, values);
-        if(title == null){
+        if (title == null) {
             return;
         }
         values.put(LauncherSettings.Favorites.TITLE, title.toString());
@@ -133,8 +133,11 @@ public class FolderInfo extends ItemInfo {
 
     interface FolderListener {
         public void onAdd(ShortcutInfo item);
+
         public void onRemove(ShortcutInfo item);
+
         public void onTitleChanged(CharSequence title);
+
         public void onItemsChanged();
     }
 
@@ -151,9 +154,9 @@ public class FolderInfo extends ItemInfo {
     }
 
     /**
-     * @param option flag to set or clear
+     * @param option    flag to set or clear
      * @param isEnabled whether to set or clear the flag
-     * @param context if not null, save changes to the db.
+     * @param context   if not null, save changes to the db.
      */
     public void setOption(int option, boolean isEnabled, Context context) {
         int oldOptions = options;

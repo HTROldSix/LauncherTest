@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.android.launcher3.IconClock.IconScript;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
@@ -156,7 +157,7 @@ public class ShortcutInfo extends ItemInfo {
     }
 
     ShortcutInfo(Intent intent, CharSequence title, CharSequence contentDescription,
-            Bitmap icon, UserHandleCompat user) {
+                 Bitmap icon, UserHandleCompat user) {
         this();
         this.intent = intent;
         this.title = Utilities.trim(title);
@@ -182,7 +183,9 @@ public class ShortcutInfo extends ItemInfo {
         status = info.status;
     }
 
-    /** TODO: Remove this.  It's only called by ApplicationInfo.makeShortcut. */
+    /**
+     * TODO: Remove this.  It's only called by ApplicationInfo.makeShortcut.
+     */
     public ShortcutInfo(AppInfo info) {
         super(info);
         title = Utilities.trim(info.title);
@@ -255,9 +258,9 @@ public class ShortcutInfo extends ItemInfo {
     }
 
     public static void dumpShortcutInfoList(String tag, String label,
-            ArrayList<ShortcutInfo> list) {
+                                            ArrayList<ShortcutInfo> list) {
         Log.d(tag, label + " size=" + list.size());
-        for (ShortcutInfo info: list) {
+        for (ShortcutInfo info : list) {
             Log.d(tag, "   title=\"" + info.title + " icon=" + info.mIcon
                     + " customIcon=" + info.customIcon);
         }
@@ -302,5 +305,12 @@ public class ShortcutInfo extends ItemInfo {
         shortcut.firstInstallTime = info.getFirstInstallTime();
         return shortcut;
     }
+
+    //A: taoqi IconClock{
+    public IconScript getScript(IconCache iconCache) {
+        Log.d("lihuachun", "ShortcutInfo:getScript before");
+        return iconCache.getScript(promisedIntent != null ? promisedIntent : intent, user);
+    }
+    //}
 }
 

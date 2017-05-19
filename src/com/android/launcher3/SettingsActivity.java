@@ -17,14 +17,15 @@
 package com.android.launcher3;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
  */
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends Activity implements AdapterView.OnItemLongClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +35,17 @@ public class SettingsActivity extends Activity {
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new LauncherSettingsFragment())
                 .commit();
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         System.exit(0);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        return false;
     }
 }

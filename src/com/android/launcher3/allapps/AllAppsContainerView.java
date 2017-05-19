@@ -29,6 +29,7 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,13 +59,16 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import transforms.ABaseTransformer;
 import transforms.AccordionTransformer;
 import transforms.BackgroundToForegroundTransformer;
 import transforms.CubeInTransformer;
 import transforms.CubeOutTransformer;
+import transforms.DefaultTransformer;
 import transforms.DepthPageTransformer;
 import transforms.FlipHorizontalTransformer;
 import transforms.FlipVerticalTransformer;
@@ -72,6 +76,10 @@ import transforms.ForegroundToBackgroundTransformer;
 import transforms.RotateUpTransformer;
 import transforms.ScaleInOutTransformer;
 import transforms.StackTransformer;
+import transforms.TabletTransformer;
+import transforms.ZoomInTransformer;
+import transforms.ZoomOutSlideTransformer;
+import transforms.ZoomOutTranformer;
 
 
 /**
@@ -144,8 +152,7 @@ final class SimpleSectionMergeAlgorithm implements AlphabeticalAppsList.MergeAlg
  * The all apps view container.
  */
 public class AllAppsContainerView extends BaseContainerView implements DragSource,
-        LauncherTransitionable, View.OnTouchListener, View.OnLongClickListener,
-        AllAppsSearchBarController.Callbacks {
+        LauncherTransitionable, View.OnTouchListener, View.OnLongClickListener {
 
     private static final int MIN_ROWS_IN_MERGED_SECTION_PHONE = 3;
     private static final int MAX_NUM_MERGES_PHONE = 2;
@@ -168,7 +175,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     AllAppsRecyclerView mAppsRecyclerView;
     ViewPager mViewPager;
     @Thunk
-    AllAppsSearchBarController mSearchBarController;
+    //AllAppsSearchBarController mSearchBarController;
     //    private ViewGroup mSearchBarContainerView;
 //    private View mSearchBarView;
     private SpannableStringBuilder mSearchQueryBuilder = null;
@@ -227,6 +234,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Sets the current set of apps.
      */
     public void setApps(List<AppInfo> apps) {
+        Log.i("TAGG", "setAppsA" + apps.size());
         mApps.setApps(apps);
     }
 
@@ -234,6 +242,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Adds new apps to the list.
      */
     public void addApps(List<AppInfo> apps) {
+        Log.i("TAGG", "addAppsA" + apps.size());
         mApps.addApps(apps);
     }
 
@@ -241,6 +250,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Updates existing apps in the list
      */
     public void updateApps(List<AppInfo> apps) {
+        Log.i("TAGG", "updateApps -" + apps.size());
         mApps.updateApps(apps);
     }
 
@@ -248,6 +258,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Removes some apps from the list.
      */
     public void removeApps(List<AppInfo> apps) {
+        Log.i("TAGG", "removeApps ");
         mApps.removeApps(apps);
     }
 
@@ -255,11 +266,11 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Sets the search bar that shows above the a-z list.
      */
     public void setSearchBarController(AllAppsSearchBarController searchController) {
-        if (mSearchBarController != null) {
+        /*if (mSearchBarController != null) {
             throw new RuntimeException("Expected search bar controller to only be set once");
-        }
-        mSearchBarController = searchController;
-        mSearchBarController.initialize(mApps, this);
+        }*/
+        //mSearchBarController = searchController;
+        //mSearchBarController.initialize(mApps, this);
 
         // Add the new search view to the layout
 //        View searchBarView = searchController.getView(mSearchBarContainerView);
@@ -309,12 +320,11 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     /**
      * Focuses the search field and begins an app search.
      */
-    public void startAppsSearch() {
+    /*public void startAppsSearch() {
         if (mSearchBarController != null) {
             mSearchBarController.focusSearchField();
         }
-    }
-
+    }*/
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -350,14 +360,14 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
 
         //A： allApp classify view
         mViewPager = (ViewPager) findViewById(R.id.my_viewpager);
-        mViewPager.setPageTransformer(true, new StackTransformer();
+        mViewPager.setPageTransformer(true, new DepthPageTransformer());
         updateBackgroundAndPaddings();
     }
 
     public void setMode() {
         SharedPreferences sp = mLauncher.getSharedPreferences("allappmode", 4);
+        mAdapter.setMode(sp.getBoolean("appclassify", false));
         if (sp.getBoolean("refresh", true)) {
-            mAdapter.setMode(sp.getBoolean("appclassify", false));
             mAppsRecyclerView.setAdapter(mAdapter);
             mAppsRecyclerView.invalidate();
             sp.edit().putBoolean("refresh", false).commit();
@@ -376,8 +386,8 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     }
 
     public void setViewPagerVisibility(int AppsRecyclerViewVisibility, int ViewPagerVisibility) {
-        mAppsRecyclerView.setVisibility(AppsRecyclerViewVisibility);
         mViewPager.setVisibility(ViewPagerVisibility);
+        mAppsRecyclerView.setVisibility(AppsRecyclerViewVisibility);
     }
 
     /**
@@ -385,6 +395,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      */
     public void refreshAllAppFodler() {
         mAdapter.notifyItemChanged(mViewPager.getCurrentItem() + 1);
+        Log.i("TAOQI", "refreshAllAppFodler 刷新allapp界面指定item");
     }
 
     /**
@@ -395,10 +406,10 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         mAdapter.notifyDataSetChanged();
     }
 
-    @Override
+    /*@Override
     public void onBoundsChanged(Rect newBounds) {
         mLauncher.updateOverlayBounds(newBounds);
-    }
+    }*/
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -485,7 +496,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     public boolean dispatchKeyEvent(KeyEvent event) {
         // Determine if the key event was actual text, if so, focus the search bar and then dispatch
         // the key normally so that it can process this key event
-        if (!mSearchBarController.isSearchFieldFocused() &&
+        if (/*!mSearchBarController.isSearchFieldFocused() &&*/
                 event.getAction() == KeyEvent.ACTION_DOWN) {
             final int unicodeChar = event.getUnicodeChar();
             final boolean isKeyNotWhitespace = unicodeChar > 0 &&
@@ -493,9 +504,9 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
             if (isKeyNotWhitespace) {
                 boolean gotKey = TextKeyListener.getInstance().onKeyDown(this, mSearchQueryBuilder,
                         event.getKeyCode(), event);
-                if (gotKey && mSearchQueryBuilder.length() > 0) {
+                /*if (gotKey && mSearchQueryBuilder.length() > 0) {
                     mSearchBarController.focusSearchField();
-                }
+                }*/
             }
         }
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && mViewPager.getVisibility() == VISIBLE) {
@@ -630,7 +641,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
     public void onLauncherTransitionEnd(Launcher l, boolean animated, boolean toWorkspace) {
         if (toWorkspace) {
             // Reset the search bar and base recycler view after transitioning home
-            mSearchBarController.reset();
+            //mSearchBarController.reset();
             mAppsRecyclerView.reset();
         }
     }
@@ -684,7 +695,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         return false;
     }
 
-    @Override
+    /*@Override
     public void onSearchResult(String query, ArrayList<ComponentKey> apps) {
         if (apps != null) {
             mApps.setOrderedFilter(apps);
@@ -702,7 +713,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
         mSearchQueryBuilder.clear();
         mSearchQueryBuilder.clearSpans();
         Selection.setSelection(mSearchQueryBuilder, 0);
-    }
+    }*/
 
     /*M: notify the change of updating unread app*/
     public void updateAppsUnreadChanged(ComponentName componentName, int unreadNum) {

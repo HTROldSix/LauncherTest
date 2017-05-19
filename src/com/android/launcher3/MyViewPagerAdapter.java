@@ -19,9 +19,9 @@ public class MyViewPagerAdapter extends PagerAdapter {
 
     private List<View> viewLists = new ArrayList<>();
     private int columnsNumber = 4;
+    private int removeItem = 1;
     private ViewPager v;
     private AllAppsContainerView mAllAppsContainerView;
-    private boolean isRemove;
 
     public MyViewPagerAdapter(Context context, Map<String, List<AppInfo>> allAppsTypeMap, List<String> name,
                               View.OnTouchListener touchListener,
@@ -187,7 +187,7 @@ public class MyViewPagerAdapter extends PagerAdapter {
             int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
                     ItemTouchHelper.RIGHT;
             // 滑动的标记，这里允许左右滑动
-//            int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            //int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
             int swipeFlags = 0;
             int i = makeMovementFlags(dragFlags, swipeFlags);
             return i;
@@ -199,43 +199,40 @@ public class MyViewPagerAdapter extends PagerAdapter {
          */
         @Override
         public void onSelectedChanged(android.support.v7.widget.RecyclerView.ViewHolder viewHolder, int actionState) {
-//            if (viewHolder != null && viewHolder.itemView != null) viewHolder.itemView.setVisibility(View.INVISIBLE);
+            super.onSelectedChanged(viewHolder, actionState);
+            Log.i("TAOQI", "onSelectedChanged 状态修改，长按or抬起");
             if (v != null) {
                 if (actionState == 2) {
+                    if (viewHolder != null)
+                        removeItem = viewHolder.getAdapterPosition();
                     v.setInvalidate(true);//ACTION_DOWN 2
                 } else {
                     v.setInvalidate(false);//ACTION_UP 0
-                    if (isRemove) {
-                        mAllAppsContainerView.setViewPagerVisibility(0, 8);
+                    if (isRemoveItem) {
+                        isRemoveItem = false;
+                        myRecyclerViewAdapter.notifyDataSetChanged();
+                        appInfo = list.remove(removeItem - 1);
                         mAllAppsContainerView.refreshAllAppAdapter(appInfo);
-                        isRemove = false;
+                        mAllAppsContainerView.setViewPagerVisibility(0, 8);
+                        Log.i("TAOQI", "Remove了一个icon，隐藏folder界面显示allapp界面");
                     } else {
                         mAllAppsContainerView.refreshAllAppFodler();
                     }
                 }
             }
-            super.onSelectedChanged(viewHolder, actionState);
         }
 
         AppInfo appInfo;
+        boolean isRemoveItem;
 
         @Override
         public boolean onMove(android.support.v7.widget.RecyclerView recyclerView, android.support.v7.widget.RecyclerView.ViewHolder viewHolder,
                               android.support.v7.widget.RecyclerView.ViewHolder target) {
-
-            if (target.getAdapterPosition() == 0 && !isRemove) {
-                try {
-                    appInfo = list.remove(viewHolder.getAdapterPosition() - 1);
-                    myRecyclerViewAdapter.notifyDataSetChanged();
-                    isRemove = true;
-                } catch (IndexOutOfBoundsException e) {
-                    Log.i("ViewPager", "IndexOutOfBoundsException");
-                }
+            if (target.getAdapterPosition() == 0) {
+                Log.i("TAOQI", "onMove 拖动到移除位置了");
+                isRemoveItem = true;
                 return true;
             }
-            // 移动时更改列表中对应的位置并返回true
-//            Collections.swap(list, viewHolder.getAdapterPosition() - 1, target
-//                    .getAdapterPosition() - 1);
             //更新list  改变文件夹中item顺序
             int itemPosition = viewHolder.getAdapterPosition() - 1;
             int targetPosition = target.getAdapterPosition() - 1;
@@ -248,14 +245,14 @@ public class MyViewPagerAdapter extends PagerAdapter {
 
         private void onSwap(List<AppInfo> list, int index1, int index2) {
             if (index2 > index1) {//向后拖动
-                AppInfo appInfo = list.get(index2);
-                for (int i = index1; i <= index2; i++) {
+                AppInfo appInfo = list.get(index1);
+                for (int i = index2; i >= index1; i--) {
                     appInfo = list.set(i, appInfo);
                 }
             } else {//向前移动
-                AppInfo appInfo = list.get(index2);
-                for (int i = index1; i >= index2; i--) {
-                    appInfo = list.set(i, appInfo);
+                AppInfo appInfo1 = list.get(index1);
+                for (int i = index2; i <= index1; i++) {
+                    appInfo1 = list.set(i, appInfo1);
                 }
             }
         }
@@ -266,8 +263,10 @@ public class MyViewPagerAdapter extends PagerAdapter {
         @Override
         public void onMoved(android.support.v7.widget.RecyclerView recyclerView, android.support.v7.widget.RecyclerView.ViewHolder viewHolder, int
                 fromPos, android.support.v7.widget.RecyclerView.ViewHolder target, int toPos, int x, int y) {
-            if(isRemove){return;}
             super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
+            if (isRemoveItem) return;
+            Log.i("TAOQI", "onMoved 移动完成后刷新list");
+            removeItem = toPos;
             // 移动完成后刷新列表
             myRecyclerViewAdapter.notifyItemMoved(viewHolder.getAdapterPosition(), target
                     .getAdapterPosition());

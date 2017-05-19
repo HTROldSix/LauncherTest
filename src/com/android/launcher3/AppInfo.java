@@ -23,6 +23,7 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.android.launcher3.IconClock.IconScript;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
@@ -120,7 +121,7 @@ public class AppInfo extends ItemInfo {
      * Must not hold the Context.
      */
     public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandleCompat user,
-                   IconCache iconCache, String s) {
+                   IconCache iconCache) {
         this.componentName = info.getComponentName();
         this.container = ItemInfo.NO_ID;
 
@@ -274,4 +275,10 @@ public class AppInfo extends ItemInfo {
         mMatchLength = matchLength;
     }
 //add by zhaopenglin for t9 end
+
+    //A: taoqi IconClock{
+    public IconScript getScript(IconCache iconCache) {
+        return iconCache.getScript(intent, user);
+    }
+    //}
 }

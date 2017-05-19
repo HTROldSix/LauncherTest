@@ -36,6 +36,7 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -48,6 +49,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import com.android.launcher3.IconCache.IconLoadRequest;
+import com.android.launcher3.IconClock.IconScript;
 import com.android.launcher3.model.PackageItemInfo;
 
 import com.mediatek.launcher3.ext.LauncherLog;
@@ -108,6 +110,7 @@ public class BubbleTextView extends TextView
     private final int mFastScrollMode = FAST_SCROLL_FOCUS_MODE_SCALE_ICON;
 
     private IconLoadRequest mIconLoadRequest;
+    public IconScript mScript;//A: taoqi IconClock
 
     public BubbleTextView(Context context) {
         this(context, null, 0);
@@ -176,12 +179,18 @@ public class BubbleTextView extends TextView
     }
 
     public void applyFromShortcutInfo(ShortcutInfo info, IconCache iconCache,
-            boolean promiseStateChanged) {
+                                      boolean promiseStateChanged) {
         Bitmap b = info.getIcon(iconCache);
-
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(b);
         iconDrawable.setGhostModeEnabled(info.isDisabled != 0);
 
+        //A: taoqi IconClock{
+        Log.d("lihuachun", "BubbleTextView:applyFromShortcutInfo before");
+        mScript = info.getScript(iconCache);
+        if (mScript != null)
+            mScript.setFastBitmapDrawable();
+        Log.d("lihuachun", "BubbleTextView:applyFromShortcutInfo after");
+        //}
         setIcon(iconDrawable, mIconSize);
         if (info.contentDescription != null) {
             setContentDescription(info.contentDescription);
@@ -195,6 +204,12 @@ public class BubbleTextView extends TextView
     }
 
     public void applyFromApplicationInfo(AppInfo info) {
+        FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(info.iconBitmap);
+        //iconDrawable.setGhostModeEnabled(info.isDisabled != 0);
+        //A: taoqi IconClock{
+        mScript = info.getScript(LauncherAppState.getInstance().getIconCache());
+        if(mScript != null) mScript.setFastBitmapDrawable(iconDrawable);
+        //}
         setIcon(mLauncher.createIconDrawable(info.iconBitmap), mIconSize);
         setText(info.title);
         if (info.contentDescription != null) {
@@ -257,12 +272,16 @@ public class BubbleTextView extends TextView
         }
     }
 
-    /** Returns the icon for this view. */
+    /**
+     * Returns the icon for this view.
+     */
     public Drawable getIcon() {
         return mIcon;
     }
 
-    /** Returns whether the layout is horizontal. */
+    /**
+     * Returns whether the layout is horizontal.
+     */
     public boolean isLayoutHorizontal() {
         return mLayoutHorizontal;
     }
@@ -395,7 +414,7 @@ public class BubbleTextView extends TextView
             final int scrollY = getScrollY();
 
             if (mBackgroundSizeChanged) {
-                background.setBounds(0, 0,  getRight() - getLeft(), getBottom() - getTop());
+                background.setBounds(0, 0, getRight() - getLeft(), getBottom() - getTop());
                 mBackgroundSizeChanged = false;
             }
 
@@ -508,7 +527,7 @@ public class BubbleTextView extends TextView
         Object tag = getTag();
         int style = ((tag != null) && (tag instanceof ShortcutInfo) &&
                 (((ShortcutInfo) tag).container >= 0)) ? R.style.PreloadIcon_Folder
-                        : R.style.PreloadIcon;
+                : R.style.PreloadIcon;
         Theme theme = sPreloaderThemes.get(style);
         if (theme == null) {
             theme = getResources().newTheme();
@@ -661,4 +680,22 @@ public class BubbleTextView extends TextView
         MTKUnreadLoader.drawUnreadEventIfNeed(canvas, this);
     }
     ///: @}
+
+    @Override
+    public void setCompoundDrawables(Drawable left, Drawable top, Drawable right, Drawable bottom) {
+        Log.d("lihuachun", "BubbleTextView:setCompoundDrawables before");
+        if (top != null) {
+            if (mScript != null) {
+                top = mScript;
+                try {
+                    mScript.setBounds(top.getBounds());
+                } catch (Exception e) {
+                }
+                if (!mScript.isRuning)
+                    mScript.run(this);
+            }
+        }
+        Log.d("lihuachun", "BubbleTextView:setCompoundDrawables after");
+        super.setCompoundDrawables(left, top, right, bottom);
+    }
 }

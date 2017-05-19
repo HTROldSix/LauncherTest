@@ -467,7 +467,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
     }
 
     //A: app classify mode by taoqi
-    boolean isFolderMode = true;
+    boolean isFolderMode = false;
     AllAppsContainerView view;
     Map<String, List<AppInfo>> allAppsTypeMap;
     int allAppsTypeMapSize;
@@ -480,6 +480,11 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
 
     public void setItemAppInfo(AppInfo appInfo) {
         itemAppInfo.add(appInfo);
+    }
+
+    void clearAllAppsTypeMap() {
+        allAppsTypeMap.clear();
+        initAllAppsClassify();
     }
 
     private void initAllAppsClassify() {
@@ -573,9 +578,9 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                         R.layout.all_apps_icon, parent, false);
                 icon.setOnTouchListener(mTouchListener);
                 icon.setOnClickListener(mIconClickListener);
-                icon.setOnLongClickListener(mIconLongClickListener);
-                icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
-                        .getLongPressTimeout());
+                //icon.setOnLongClickListener(mIconLongClickListener);
+                //icon.setLongPressTimeout(ViewConfiguration.get(parent.getContext())
+                        //.getLongPressTimeout());
                 icon.setFocusable(true);
                 return new ViewHolder(icon);
             }
@@ -674,7 +679,6 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                 tv.setText(appType);
                 List<AppInfo> list = allAppsTypeMap.get(appType);
                 for (AppInfo info : list) {
-                    Log.i("ViewPager", "" + info.title);
                     fi.addItem(new ShortcutInfo(info));
                 }
                 fi.setOnClickListener(new View.OnClickListener() {

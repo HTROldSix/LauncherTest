@@ -60,7 +60,7 @@ public class FreezeModelImpl implements IFreezeModel {
                         e.printStackTrace();
                     }
                     freezeAppInfoList.add(appInfo);
-                    Log.w("ssss", "freezeAppInfoList.size = " + freezeAppInfoList.size());
+                    Log.w("TAGG", "freezeAppInfoList.size = " + freezeAppInfoList.size());
                 }
             }
             cursor.close();

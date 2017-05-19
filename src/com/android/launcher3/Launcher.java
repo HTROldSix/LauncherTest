@@ -765,7 +765,7 @@ public class Launcher extends Activity
 
     public boolean setLauncherCallbacks(LauncherCallbacks callbacks) {
         mLauncherCallbacks = callbacks;
-        Log.i("ssss", "chu shi hua mLauncherCallbacks");
+        Log.i("TAGG", "chu shi hua mLauncherCallbacks");
         mLauncherCallbacks.setLauncherSearchCallback(new Launcher.LauncherSearchCallbacks() {
             private boolean mWorkspaceImportanceStored = false;
             private boolean mHotseatImportanceStored = false;
@@ -1344,7 +1344,7 @@ public class Launcher extends Activity
         setWorkspaceBackground(mState == State.WORKSPACE ? WORKSPACE_BACKGROUND_GRADIENT
                 : WORKSPACE_BACKGROUND_TRANSPARENT);
 
-        Log.i("ssss", "continueResume");
+        Log.i("TAGG", "continueResume");
         mPaused = false;
         if (mRestoring || mOnResumeNeedsLoad) {
             setWorkspaceLoading(true);
@@ -3042,7 +3042,6 @@ public class Launcher extends Activity
 
         /// M: add systrace to analyze application launche time.
         // Trace.traceBegin(Trace.TRACE_TAG_INPUT, "Launcher.onClick"); // wangjun delete ---__JEF_COMPILE_PASS__
-
         if (LauncherLog.DEBUG) {
             LauncherLog.d(TAG, "Click on view " + v);
         }
@@ -3090,7 +3089,8 @@ public class Launcher extends Activity
         /// M: add systrace to analyze application launche time.
         // Trace.traceEnd(Trace.TRACE_TAG_INPUT);  // wangjun delete ---__JEF_COMPILE_PASS__
     }
-private int i = 0;
+
+    private int i = 0;
     //add by zhaopenglin for double click launch t9 start
     private int count = 0;
     private long firstClick = 0;
@@ -4454,6 +4454,7 @@ private int i = 0;
 
     @Override
     public void bindScreens(ArrayList<Long> orderedScreenIds) {
+        //这里完成CellLayout的添加
         bindAddScreens(orderedScreenIds);
 
         // If there are no screens, we need to have an empty screen
@@ -4534,6 +4535,7 @@ private int i = 0;
         mWorkspace.removeExtraEmptyScreen(false, false);
 
         if (addedApps != null && mAppsView != null) {
+            Log.i("TAGG", "bindAppsAdded");
             mAppsView.addApps(addedApps);
         }
     }
@@ -4947,7 +4949,7 @@ private int i = 0;
     ArrayList<AppInfo> mTmpAppsList;
     private Runnable mBindAllApplicationsRunnable = new Runnable() {
         public void run() {
-            Log.i("ssss", "mTmpAppsList = " + mTmpAppsList);
+            Log.i("TAGG", "mTmpAppsList = " + mTmpAppsList);
             bindAllApplications(mTmpAppsList);
             mTmpAppsList = null;
         }
@@ -4964,17 +4966,17 @@ private int i = 0;
         }
 
         if (waitUntilResume(mBindAllApplicationsRunnable, true)) {
-            Log.i("ssss", "mTmpAppsList = apps");
+            Log.i("TAGG", "mTmpAppsList = apps");
             mTmpAppsList = apps;
             return;
         }
 
         if (mAppsView != null) {
-            Log.i("ssss", "mAppsView != null");
+            Log.i("TAGG", "setAppsL");
             mAppsView.setApps(apps);
         }
 
-        Log.i("ssss", "bindAllApplication " + (mLauncherCallbacks != null));
+        Log.i("TAGG", "bindAllApplication " + (mLauncherCallbacks != null));
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.bindAllApplications(apps);
         }
@@ -5030,6 +5032,7 @@ private int i = 0;
             if (LauncherLog.DEBUG) {
                 LauncherLog.d(TAG, "bindAppsUpdated()");
             }
+            Log.i("TAGG", "bindAppsUpdated -" + apps.size());
             mAppsView.updateApps(apps);
         }
 
@@ -5148,6 +5151,7 @@ private int i = 0;
 
         // Update AllApps
         if (mAppsView != null) {
+            Log.i("TAGG", "removeApps ");
             mAppsView.removeApps(appInfos);
         }
     }
@@ -5443,7 +5447,7 @@ private int i = 0;
         if (activityInfo == null) {
             return null;
         }
-        return new AppInfo(this, activityInfo, user, mIconCache, "5451");
+        return new AppInfo(this, activityInfo, user, mIconCache);
     }
 
     // TODO: This method should be a part of LauncherSearchCallback

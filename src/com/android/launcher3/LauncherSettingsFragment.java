@@ -48,7 +48,6 @@ public class LauncherSettingsFragment extends PreferenceFragment
                 LauncherSettings.Settings.METHOD_GET_BOOLEAN,
                 Utilities.ALLOW_ROTATION_PREFERENCE_KEY, extras);
         pref.setChecked(value.getBoolean(LauncherSettings.Settings.EXTRA_VALUE));
-
         pref.setOnPreferenceChangeListener(this);
         prefGroup.setOnPreferenceChangeListener(this);
 

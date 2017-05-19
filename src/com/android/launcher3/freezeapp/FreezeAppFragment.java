@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 public class FreezeAppFragment extends Fragment implements
 		OnItemClickListener{
-	private static final String TAG = "TAG";
+	private static final String TAG = "FreezeAppFragment";
 
 	private final static int EXTRA_ITEM_COUNT = 1;
 	private final static int ITEM_TYPE_COMMON = 0;

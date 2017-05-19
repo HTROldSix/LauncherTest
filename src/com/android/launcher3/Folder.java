@@ -28,9 +28,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -341,7 +339,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         // gets saved.
         String newTitle = mFolderName.getText().toString();
         //A:taoqi start
-        Log.i("Launcher:Folder", "setTitle " + mInfo.title + "\n" + newTitle);
         if (newTitle.equals("Freeze")) {
             newTitle = "" + mInfo.title;
             Toast.makeText(getContext(), getResources().getString(R.string.naming_error), Toast.LENGTH_SHORT).show();
@@ -436,7 +433,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         } else {
             mFolderName.setText("");
         }
-        
+
         // In case any children didn't come across during loading, clean up the folder accordingly
         mFolderIcon.post(new Runnable() {
             public void run() {
@@ -1368,11 +1365,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         // If the item was dropped onto this open folder, we have done the work associated
         // with adding the item to the folder, as indicated by mSuppressOnAdd being set
         if (mSuppressOnAdd) return;
+        //这是创建文件夹图标的
         mContent.createAndAddViewForRank(item, mContent.allocateRankForNewItem(item));
         mItemsInvalidated = true;
 
-        LauncherModel.addOrMoveItemInDatabase(
-                mLauncher, item, mInfo.id, 0, item.cellX, item.cellY);
+        if (mInfo.title == null) return;
+        //文件夹内容保存到数据库，allapp中文件夹的title是null，以此来判断过滤
+        LauncherModel.addOrMoveItemInDatabase(mLauncher, item, mInfo.id, 0, item.cellX, item.cellY);
     }
 
     public void onRemove(ShortcutInfo item) {
@@ -1564,7 +1563,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         return childrenLayouts;
     }
 
-    public FolderPagedView getFolderPagedView(){
+    public FolderPagedView getFolderPagedView() {
         return mContent;
     }
 }

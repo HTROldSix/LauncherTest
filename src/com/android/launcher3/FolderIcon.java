@@ -70,7 +70,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     // Modify BUG_ID:NONE zhaopenglin 20150601(start)
     //private static final int NUM_ITEMS_IN_PREVIEW = 3;
-    public static int NUM_ITEMS_IN_PREVIEW;
+    public static int NUM_ITEMS_IN_PREVIEW;//这里开始不设置值会使folder加载时默认使用低分辨率图
     private static final int NUM_COLUMN_IN_PREVIEW = 3;
     // Modify BUG_ID:NONE zhaopenglin 20150601(end)
 
@@ -168,7 +168,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     public static FolderIcon fromXml(int resId, Launcher launcher, ViewGroup group,
                                      FolderInfo folderInfo, IconCache iconCache, String s) {
-        Log.i("Launcher:FolderIcon", "fromXml " + s);
         return fromXml(resId, launcher, group, folderInfo, iconCache, false);//delete Freeze 7
     }
 
@@ -215,7 +214,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         folderInfo.addListener(icon);
 
         icon.setOnFocusChangeListener(launcher.mFocusHandler);
-        Log.i("Launcher:FolderIcon", "icon = " + icon.getFolderInfo().title);
         return icon;
     }
 
@@ -243,7 +241,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         private ValueAnimator mNeutralAnimator;
 
         public FolderRingAnimator(Launcher launcher, FolderIcon folderIcon) {
-            Log.i("Launcher:FolderIcon", "FolderRingAnimator");
             mFolderIcon = folderIcon;
             Resources res = launcher.getResources();
 
@@ -273,7 +270,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         }
 
         public void animateToAcceptState() {
-            Log.i("Launcher:FolderIcon", "animateToAcceptState");
             if (mNeutralAnimator != null) {
                 mNeutralAnimator.cancel();
             }
@@ -303,7 +299,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         }
 
         public void animateToNaturalState() {
-            Log.i("Launcher:FolderIcon", "animateToNaturalState");
             if (mAcceptAnimator != null) {
                 mAcceptAnimator.cancel();
             }
@@ -348,7 +343,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         }
 
         public void setCellLayout(CellLayout layout) {
-            Log.i("Launcher:FolderIcon", "setCellLayout");
             mCellLayout = layout;
         }
 
@@ -370,7 +364,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     private boolean willAcceptItem(ItemInfo item) {
-        Log.i("Launcher:FolderIcon", "willAcceptItem");
         final int itemType = item.itemType;
         return ((itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
                 itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) &&
@@ -380,17 +373,14 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     public boolean acceptDrop(Object dragInfo) {
         final ItemInfo item = (ItemInfo) dragInfo;
         boolean b = !mFolder.isDestroyed() && willAcceptItem(item);
-        Log.i("Launcher:FolderIcon", "acceptDrop " + b);
         return b;
     }
 
     public void addItem(ShortcutInfo item) {
-        Log.i("Launcher:FolderIcon", "addItem");
         mInfo.add(item);
     }
 
     public void onDragEnter(Object dragInfo) {
-        Log.i("Launcher:FolderIcon", "onDragEnter");
         if (mFolder.isDestroyed() || !willAcceptItem((ItemInfo) dragInfo)) return;
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) getLayoutParams();
         CellLayout layout = (CellLayout) getParent().getParent();
@@ -416,7 +406,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     OnAlarmListener mOnOpenListener = new OnAlarmListener() {
         public void onAlarm(Alarm alarm) {
             //taoqi return open folder
-            Log.i("Launcher:FolderIcon", "mOnOpenListener " + getFolderInfo().title);
             if (getFolderInfo().title.equals("Freeze")) {
                 return;
             }
@@ -444,8 +433,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     public void performCreateAnimation(final ShortcutInfo destInfo, final View destView,
                                        final ShortcutInfo srcInfo, final DragView srcView, Rect dstRect,
                                        float scaleRelativeToDragLayer, Runnable postAnimationRunnable) {
-
-        Log.i("Launcher:FolderIcon", "performCreateAnimation");
         // These correspond two the drawable and view that the icon was dropped _onto_
         Drawable animateDrawable = getTopDrawable((TextView) destView);
         computePreviewDrawingParams(animateDrawable.getIntrinsicWidth(),
@@ -461,7 +448,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void performDestroyAnimation(final View finalView, Runnable onCompleteRunnable) {
-        Log.i("Launcher:FolderIcon", "performDestroyAnimation");
         Drawable animateDrawable = getTopDrawable((TextView) finalView);
         computePreviewDrawingParams(animateDrawable.getIntrinsicWidth(),
                 finalView.getMeasuredWidth());
@@ -473,12 +459,10 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void onDragExit(Object dragInfo) {
-        Log.i("Launcher:FolderIcon", "onDragExit");
         onDragExit();
     }
 
     public void onDragExit() {
-        Log.i("Launcher:FolderIcon", "onDragExit()");
         mFolderRingAnimator.animateToNaturalState();
         mOpenAlarm.cancelAlarm();
     }
@@ -486,7 +470,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     private void onDrop(final ShortcutInfo item, DragView animateView, Rect finalRect,
                         float scaleRelativeToDragLayer, int index, Runnable postAnimationRunnable,
                         DragObject d) {
-        Log.i("Launcher:FolderIcon", "onDrop()");
         item.cellX = -1;
         item.cellY = -1;
 
@@ -545,7 +528,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void onDrop(DragObject d) {
-        Log.i("Launcher:FolderIcon", "onDrop(DragObject d)");
         ShortcutInfo item;
         boolean isDraggingAdd = mInfo.title.equals("Freeze");
         if (d.dragInfo instanceof AppInfo) {
@@ -561,7 +543,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         int start = strIntent.indexOf("cmp=com");
         int end = strIntent.indexOf("/.");
         String packageName = strIntent.substring(start + 4, end);
-        Log.i("Launcher:FolderIcon", "packageName = " + packageName);
         if (isDraggingAdd) {
             Intent intent = new Intent(getContext(), FreezeActivity.class);
             intent.putExtra("packageName", packageName);
@@ -616,7 +597,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     private float getLocalCenterForIndex(int index, int[] center) {
-        Log.i("Launcher:FolderIcon", "getLocalCenterForIndex");
         mParams = computePreviewItemDrawingParams(Math.min(NUM_ITEMS_IN_PREVIEW, index), mParams);
 
         mParams.transX += mPreviewOffsetX;
@@ -728,7 +708,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
                 d = getTopDrawable(v);
                 computePreviewDrawingParams(d);
             } catch (Exception e) {
-                Log.e("Launcher:FolderIcon", "e = " + e);
+                Log.e("Exception ", "e = " + e);
             }
         }
 
@@ -758,7 +738,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     private void animateFirstItem(final Drawable d, int duration, final boolean reverse,
                                   final Runnable onCompleteRunnable) {
-        Log.i("Launcher:FolderIcon", "animateFirstItem");
         final PreviewItemDrawingParams finalParams = computePreviewItemDrawingParams(0, null);
 
         float iconSize = mLauncher.getDeviceProfile().iconSizePx;
@@ -779,7 +758,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
                 mAnimParams.transX = transX0 + progress * (finalParams.transX - transX0);
                 mAnimParams.transY = transY0 + progress * (finalParams.transY - transY0);
                 mAnimParams.scale = scale0 + progress * (finalParams.scale - scale0);
-                Log.i("Launcher:FolderIcon", "addUpdateListener1 " + mInfo.title);
                 invalidate();
             }
         });
@@ -806,7 +784,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void setTextVisible(boolean visible) {
-        Log.i("Launcher:FolderIcon", "setTextVisible");
         if (visible) {
             mFolderName.setVisibility(VISIBLE);
         } else {
@@ -819,7 +796,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void onItemsChanged() {
-        Log.i("Launcher:FolderIcon", "onItemsChanged");
         invalidate();
         requestLayout();
     }
@@ -829,7 +805,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
          * M: added for unread feature, when add a item to a folder, we need to update
          * the unread num of the folder.@{
          */
-        Log.i("Launcher:FolderIcon", "onAdd");
         final ComponentName componentName = item.intent.getComponent();
         updateFolderUnreadNum(componentName, item.unreadNum);
         /**@}**/
@@ -843,7 +818,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         /**M: added for Unread feature, when remove a item from a folder, we need to update
          *  the unread num of the folder.@{
          */
-        Log.i("Launcher:FolderIcon", "onRemove");
         final ComponentName componentName = item.intent.getComponent();
         updateFolderUnreadNum(componentName, item.unreadNum);
         /**@}**/
@@ -853,7 +827,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void onTitleChanged(CharSequence title) {
-        Log.i("Launcher:FolderIcon", "onTitleChanged");
         mFolderName.setText(title);
         setContentDescription(String.format(getContext().getString(R.string.folder_name_format),
                 title));
@@ -861,7 +834,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.i("Launcher:FolderIcon", "onTouchEvent");
         // Call the superclass onTouchEvent first, because sometimes it changes the state to
         // isPressed() on an ACTION_UP
         boolean result = super.onTouchEvent(event);
@@ -891,7 +863,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     @Override
     protected void onAttachedToWindow() {
-        Log.i("Launcher:FolderIcon", "onAttachedToWindow");
         super.onAttachedToWindow();
         mSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
@@ -899,8 +870,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
-
-        Log.i("Launcher:FolderIcon", "cancelLongPress");
         mLongPressHelper.cancelLongPress();
     }
 
@@ -912,8 +881,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
      * @param unreadNum the number of the unread message.
      */
     public void setFolderUnreadNum(int unreadNum) {
-
-        Log.i("Launcher:FolderIcon", "setFolderUnreadNum");
         if (unreadNum <= 0) {
             mInfo.unreadNum = 0;
         } else {
@@ -960,7 +927,6 @@ public class FolderIcon extends FrameLayout implements FolderListener {
      * @param unreadNum the number of the unread message.
      */
     public void updateFolderUnreadNum(ComponentName component, int unreadNum) {
-        Log.i("Launcher:FolderIcon", "updateFolderUnreadNum");
         final ArrayList<ShortcutInfo> contents = mInfo.contents;
         final int contentsCount = contents.size();
         int unreadNumTotal = 0;

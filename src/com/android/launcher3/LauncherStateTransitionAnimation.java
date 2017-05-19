@@ -147,7 +147,7 @@ public class LauncherStateTransitionAnimation {
             @Override
             void onTransitionComplete() {
                 if (startSearchAfterTransition) {
-                    toView.startAppsSearch();
+                    //toView.startAppsSearch();
                 }
             }
         };

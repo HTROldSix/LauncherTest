@@ -591,7 +591,7 @@ public class BitmapRegionTileSource implements TiledImageRenderer.TileSource {
                  drmIndex = cursor.getInt(0);
             }
         } catch (Exception e) {
-            Log.e("TAG", "Exception when trying to get Drm", e);
+            Log.e(TAG, "Exception when trying to get Drm", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -612,7 +612,7 @@ public class BitmapRegionTileSource implements TiledImageRenderer.TileSource {
                  filePath = cursor.getString(0);
             }
         } catch (Exception e) {
-            Log.e("TAG", "Exception when trying to get Drm", e);
+            Log.e(TAG, "Exception when trying to get Drm", e);
         } finally {
             if (cursor != null) {
                 cursor.close();

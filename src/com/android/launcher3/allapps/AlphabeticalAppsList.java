@@ -18,6 +18,7 @@ package com.android.launcher3.allapps;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
@@ -85,17 +86,23 @@ public class AlphabeticalAppsList {
      * Info about a particular adapter item (can be either section or app)
      */
     public static class AdapterItem {
-        /** Common properties */
+        /**
+         * Common properties
+         */
         // The index of this adapter item in the list
         public int position;
         // The type of this item
         public int viewType;
 
-        /** Section & App properties */
+        /**
+         * Section & App properties
+         */
         // The section for this item
         public SectionInfo sectionInfo;
 
-        /** App-only properties */
+        /**
+         * App-only properties
+         */
         // The section name of this app.  Note that there can be multiple items with different
         // sectionNames in the same section
         public String sectionName = null;
@@ -120,14 +127,14 @@ public class AlphabeticalAppsList {
         }
 
         public static AdapterItem asPredictedApp(int pos, SectionInfo section, String sectionName,
-                int sectionAppIndex, AppInfo appInfo, int appIndex) {
+                                                 int sectionAppIndex, AppInfo appInfo, int appIndex) {
             AdapterItem item = asApp(pos, section, sectionName, sectionAppIndex, appInfo, appIndex);
             item.viewType = AllAppsGridAdapter.PREDICTION_ICON_VIEW_TYPE;
             return item;
         }
 
         public static AdapterItem asApp(int pos, SectionInfo section, String sectionName,
-                int sectionAppIndex, AppInfo appInfo, int appIndex) {
+                                        int sectionAppIndex, AppInfo appInfo, int appIndex) {
             AdapterItem item = new AdapterItem();
             item.viewType = AllAppsGridAdapter.ICON_VIEW_TYPE;
             item.position = pos;
@@ -166,7 +173,7 @@ public class AlphabeticalAppsList {
      */
     public interface MergeAlgorithm {
         boolean continueMerging(SectionInfo section, SectionInfo withSection,
-                int sectionAppCount, int numAppsPerRow, int mergeCount);
+                                int sectionAppCount, int numAppsPerRow, int mergeCount);
     }
 
     private Launcher mLauncher;
@@ -208,7 +215,7 @@ public class AlphabeticalAppsList {
      * Sets the number of apps per row.
      */
     public void setNumAppsPerRow(int numAppsPerRow, int numPredictedAppsPerRow,
-            MergeAlgorithm mergeAlgorithm) {
+                                 MergeAlgorithm mergeAlgorithm) {
         mNumAppsPerRow = numAppsPerRow;
         mNumPredictedAppsPerRow = numPredictedAppsPerRow;
         mMergeAlgorithm = mergeAlgorithm;
@@ -303,6 +310,7 @@ public class AlphabeticalAppsList {
      * Sets the current set of apps.
      */
     public void setApps(List<AppInfo> apps) {
+        Log.i("TAGG", "setApps");
         mComponentToAppMap.clear();
         addApps(apps);
     }
@@ -310,7 +318,8 @@ public class AlphabeticalAppsList {
     /**
      * Adds new apps to the list.
      */
-    public void addApps(List<AppInfo> apps) {
+    public void addApps(List<AppInfo> apps){
+        Log.i("TAGG", "addApps");
         updateApps(apps);
     }
 
@@ -318,6 +327,7 @@ public class AlphabeticalAppsList {
      * Updates existing apps in the list
      */
     public void updateApps(List<AppInfo> apps) {
+        Log.i("TAGG", "updateApps " + apps.size());
         if (apps == null) {
             LauncherLog.d(TAG, "updateApps: apps == null");
             return;
@@ -333,6 +343,7 @@ public class AlphabeticalAppsList {
             }
         }
         for (AppInfo app : apps) {
+            Log.i("TAGG", "**" + app.title);
             mComponentToAppMap.put(app.toComponentKey(), app);
         }
         onAppsUpdated();
@@ -342,6 +353,7 @@ public class AlphabeticalAppsList {
      * Removes some apps from the list.
      */
     public void removeApps(List<AppInfo> apps) {
+        Log.i("TAGG", "removeApps ");
         for (AppInfo app : apps) {
             mComponentToAppMap.remove(app.toComponentKey());
         }
@@ -355,7 +367,13 @@ public class AlphabeticalAppsList {
         // Sort the list of apps
         mApps.clear();
         mApps.addAll(mComponentToAppMap.values());
+        for (AppInfo ai : mApps) {
+            Log.i("TAGG", "" + ai.title);
+        }
         Collections.sort(mApps, mAppNameComparator.getAppInfoComparator());
+        for (AppInfo ai : mApps) {
+            Log.i("TAGG", "-" + ai.title);
+        }
 
         // As a special case for some languages (currently only Simplified Chinese), we may need to
         // coalesce sections

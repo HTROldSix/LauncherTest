@@ -2028,7 +2028,7 @@ public class ExifInterface {
     }
 
     private static Rational[] toExifLatLong(double value) {
-        // convert to the format dd/1 mm/1 ssss/100
+        // convert to the format dd/1 mm/1 TAGG/100
         value = Math.abs(value);
         int degrees = (int) value;
         value = (value - degrees) * 60;

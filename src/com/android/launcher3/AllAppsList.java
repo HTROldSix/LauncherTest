@@ -181,7 +181,7 @@ public class AllAppsList {
                 user);
 
         for (LauncherActivityInfoCompat info : matches) {
-            add(new AppInfo(context, info, user, mIconCache, "123"), context);
+            add(new AppInfo(context, info, user, mIconCache), context);
         }
     }
 
@@ -249,7 +249,7 @@ public class AllAppsList {
                         info.getComponentName().getPackageName(), user,
                         info.getComponentName().getClassName());
                 if (applicationInfo == null) {
-                    add(new AppInfo(context, info, user, mIconCache, "191"), context);
+                    add(new AppInfo(context, info, user, mIconCache), context);
                 } else {
                     mIconCache.getTitleAndIcon(applicationInfo, info, true /* useLowResIcon */);
                     modified.add(applicationInfo);
